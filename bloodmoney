@@ -1,8 +1,8 @@
-var screen_size = Global.GetScreenSize();
+var screen_size = Global.GetScreenSize()
 var isInverted; 
 var time, fillbar, shotsfired;
 var drawLeft = 0; drawNotActive = 1;
-var drawRight = 0;
+var drawRight = 0
 var leftWasPressed = false; var rightWasPressed = false;
 var safePBackup = false
 var baimBackup
@@ -12,6 +12,11 @@ var awp_cache = UI.GetValue("Rage", "AWP", "Targeting", "Minimum damage")
 var auto_cache = UI.GetValue("Rage", "AUTOSNIPER", "Targeting", "Minimum damage")
 var pistol_cache = UI.GetValue("Rage", "PISTOL", "Targeting", "Minimum damage")
 const lowdelta_modes = UI.AddMultiDropdown("Low delta modes", [ "Slow walk", "Low HP", "Standing" ])
+var jump = false
+var oldTick = 0
+var lastPressed = 0
+var isNotActive = false
+var clock = 0
 
 function isDoubleTapActive()
 {
@@ -37,7 +42,6 @@ function correctLBYMode()
 
 correctLBYMode();
 
-var jump = false
 
 LPx = [(screen_size[0] /2) - 30, (screen_size[1] /2) + 7];
 LPy = [(screen_size[0] /2) - 30, (screen_size[1] /2) - 7];
@@ -103,9 +107,7 @@ function drawind()
                                     }
                                        }
                                 }
-var oldTick = 0
-var lastPressed = 0
-var isNotActive = false
+
 
 function ManualAA(){
     isLeftActive = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Left" );
@@ -1366,8 +1368,6 @@ function delta() {
     Render.GradientRect(x / 2 - (45 / 60) * delta + 1, y / 2 + 30, (45 / 60) * delta, 2, 1, [0, 0, 0, 0], coldelt);
 }
 
-var clock = 0;
-
 function anim()
 {
     if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Animfucker"))
@@ -1392,11 +1392,11 @@ function anim()
 function Main()
 {
                   UI.AddLabel("-----------Arrows ind-----------")
-	UI.AddColorPicker( "Arrows color" )
-	UI.AddColorPicker( "Selected arrow color" )
-	UI.AddColorPicker( "Selected inverter color" )
+	          UI.AddColorPicker( "Arrows color" )
+	          UI.AddColorPicker( "Selected arrow color" )
+	          UI.AddColorPicker( "Selected inverter color" )
                   UI.AddCheckbox( "Display indicators")
-	UI.AddCheckbox( "Display arrows")
+	          UI.AddCheckbox( "Display arrows")
                   UI.AddHotkey("Left")
                   UI.AddHotkey("Right")
                   UI.AddLabel("----------Aspect Ratio----------")
@@ -1424,9 +1424,9 @@ function Main()
                   UI.AddSliderFloat("TP Dist", 50, 300)
 	
 	//  callbacks
-	Global.RegisterCallback("Draw", "drawind")
-	Global.RegisterCallback("CreateMove", "ManualAA")
-	Global.RegisterCallback("player_connect_full", "player_connect")
+	          Global.RegisterCallback("Draw", "drawind")
+	          Global.RegisterCallback("CreateMove", "ManualAA")
+	          Global.RegisterCallback("player_connect_full", "player_connect")
                   Global.RegisterCallback("Draw", "draw")
                   Global.RegisterCallback( "FrameStageNotify", "fsn" )
                   Global.RegisterCallback("Draw","autoscope")
@@ -1434,18 +1434,18 @@ function Main()
                   Global.RegisterCallback('Draw', 'safeAWP')
                   Global.RegisterCallback('Draw', 'peekBAIM')
                   Global.RegisterCallback("Draw", "drawscope")
-	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
-	Global.RegisterCallback("item_purchase", "item_purchase");
+	          Global.RegisterCallback("ragebot_fire", "ragebot_fire");
+	          Global.RegisterCallback("item_purchase", "item_purchase");
                   Global.RegisterCallback("player_hurt", "hitlog");
-	Global.RegisterCallback("Draw", "onDraw");
-	Global.RegisterCallback("Draw", "removelogs");
+	          Global.RegisterCallback("Draw", "onDraw");
+	          Global.RegisterCallback("Draw", "removelogs");
                   Global.RegisterCallback("FrameStageNotify", "ragdollForce");
                   Global.RegisterCallback("Draw", "drawString");
                   Global.RegisterCallback("Draw", "SetEnabled");
                   Global.RegisterCallback("CreateMove", "onCM")
                   Global.RegisterCallback("CreateMove", "Low_delta");
                   Global.RegisterCallback("FrameStageNotify", "ChangeDist");
-	Global.RegisterCallback("Draw", "indication")
+	          Global.RegisterCallback("Draw", "indication")
                   Global.RegisterCallback("Draw", "delta");
                   Global.RegisterCallback("CreateMove", "anim");
                   Global.RegisterCallback("CreateMove", "fakelags");
