@@ -1,0 +1,1454 @@
+var screen_size = Global.GetScreenSize();
+var isInverted; 
+var time, fillbar, shotsfired;
+var drawLeft = 0; drawNotActive = 1;
+var drawRight = 0;
+var leftWasPressed = false; var rightWasPressed = false;
+var safePBackup = false
+var baimBackup
+var heavy_cache = UI.GetValue("Rage", "HEAVY PISTOL", "Targeting", "Minimum damage")
+var scout_cache = UI.GetValue("Rage", "SCOUT", "Targeting", "Minimum damage")
+var awp_cache = UI.GetValue("Rage", "AWP", "Targeting", "Minimum damage")
+var auto_cache = UI.GetValue("Rage", "AUTOSNIPER", "Targeting", "Minimum damage")
+var pistol_cache = UI.GetValue("Rage", "PISTOL", "Targeting", "Minimum damage")
+const lowdelta_modes = UI.AddMultiDropdown("Low delta modes", [ "Slow walk", "Low HP", "Standing" ])
+
+function isDoubleTapActive()
+{
+	var isCheckboxActive = UI.GetValue("Rage", "Exploits", "Doubletap");
+	var isKeyActive = UI.IsHotkeyActive("Rage", "Exploits", "Doubletap");
+	
+	return isCheckboxActive && isKeyActive;
+}
+
+function correctLBYMode()
+{
+	if (isDoubleTapActive() == 1)
+	{
+			UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "0")
+			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 6);
+	}
+	else
+	{
+			UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "1")
+			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 64);
+	}
+}
+
+correctLBYMode();
+
+var jump = false
+
+LPx = [(screen_size[0] /2) - 30, (screen_size[1] /2) + 7];
+LPy = [(screen_size[0] /2) - 30, (screen_size[1] /2) - 7];
+LPz = [(screen_size[0] /2) - 43, (screen_size[1] /2)];
+RPx = [(screen_size[0] /2) + 30, (screen_size[1] /2) + 7];
+RPy = [(screen_size[0] /2) + 30, (screen_size[1] /2) - 7];
+RPz = [(screen_size[0] /2) + 43, (screen_size[1] /2)];
+
+function drawind()
+{
+	correctLBYMode();
+
+	arrown = UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Arrows color" );
+	arrow = UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Selected arrow color" );
+                  color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Selected inverter color");
+                  real_yaw = Local.GetRealYaw();
+                  fake_yaw = Local.GetFakeYaw();
+                  delta = Math.min(Math.abs(real_yaw - fake_yaw) / 2, 60).toFixed(0);
+				  	isInverter = UI.IsHotkeyActive("Anti-Aim", "Fake angles", "Inverter");
+                  isDesyncMode = UI.GetValue("Anti-Aim", "Fake angles", "Fake desync");
+	
+	
+		if(UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Display arrows'))
+		{
+                                    if (isDesyncMode == 0){
+
+                                    if (isInverter == 1)
+                                    {
+                                    Render.FilledRect((screen_size[0] /2) - 29, (screen_size[1] /2) - 7, 2, 15, [color[0], color[1], color[2], 255]);       
+                                    }
+                                    else if(isInverter == 0)
+                                    {
+                                    Render.FilledRect((screen_size[0] /2) + 27, (screen_size[1] /2) - 7, 2, 15, [color[0], color[1], color[2], 255]);       
+                                    }
+                                }
+                                    if (isDesyncMode == 1){
+
+                                    if (isInverter == 1)
+                                    {
+                                    Render.FilledRect((screen_size[0] /2) + 41, (screen_size[1] /2) - 10, 2, 21, [color[0], color[1], color[2], 255]);
+                                    }
+                                    else if(isInverter == 0)
+                                    {
+                                    Render.FilledRect((screen_size[0] /2) - 43, (screen_size[1] /2) - 10, 2, 21, [color[0], color[1], color[2], 255]);
+                                    }
+                                }
+                                    if(drawLeft)
+                                    {
+                                    Render.Polygon([RPy, RPz, RPx], [arrown[0], arrown[1], arrown[2], arrown[3]]);   
+                                    Render.Polygon([LPx, LPz, LPy], [arrow[0], arrow[1], arrow[2], 255]);
+                                    }
+                                
+                                    else if(drawRight)
+                                    {
+                                    Render.Polygon([RPy, RPz, RPx], [arrow[0], arrow[1], arrow[2], 255]);   
+                                    Render.Polygon([LPx, LPz, LPy], [arrown[0], arrown[1], arrown[2], arrown[3]]);
+                                    }
+
+                                    else if(drawNotActive)
+                                    {
+                                    Render.Polygon([RPy, RPz, RPx], [arrown[0], arrown[1], arrown[2], arrown[3]]);   
+                                    Render.Polygon([LPx, LPz, LPy], [arrown[0], arrown[1], arrown[2], arrown[3]]);
+                                    }
+                                       }
+                                }
+var oldTick = 0
+var lastPressed = 0
+var isNotActive = false
+
+function ManualAA(){
+    isLeftActive = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Left" );
+    isRightActive = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Right" );
+
+    if(isLeftActive && leftWasPressed == false)
+    {
+        lastPressed = Global.Tickcount();
+        isNotActive = false;
+        leftWasPressed = true;
+        rightWasPressed = false;
+        drawLeft = 1;
+        drawRight = 0;
+        UI.SetValue( "Anti-Aim", "Rage Anti-Aim", "Yaw offset", -90 );
+    } else if( isLeftActive && leftWasPressed == true && Global.Tickcount() > lastPressed + 16 ) {
+        isNotActive = true;
+        oldTick = Global.Tickcount();
+    }
+
+    if(isRightActive && rightWasPressed == false)
+    {
+        lastPressed = Global.Tickcount();
+        isNotActive = false;
+        leftWasPressed = false;
+        rightWasPressed = true;
+        drawLeft = 0;
+        drawRight = 1;
+        UI.SetValue( "Anti-Aim", "Rage Anti-Aim", "Yaw offset", 90 );
+    
+    } else if(isRightActive && rightWasPressed == true && Global.Tickcount() > lastPressed + 16){
+        isNotActive = true;
+        oldTick = Global.Tickcount();
+    }
+
+    if (isNotActive) {   
+        if (Global.Tickcount() > oldTick + 16)  {
+            rightWasPressed = false;
+            leftWasPressed = false;
+            oldTick = Global.Tickcount();
+        }
+    
+        drawLeft = 0;
+        drawRight = 0;
+        UI.SetValue("Anti-Aim", "Rage Anti-Aim", "Yaw offset", -6 );
+    }
+
+}
+function player_connect(){
+    lastPressed = Global.Tickcount();
+    oldTick = Global.Tickcount();
+
+    time = Globals.Curtime();
+}
+
+function GetVelocity()
+{
+    var velocity = Entity.GetProp(Entity.GetLocalPlayer(), "CBasePlayer", "m_vecVelocity[0]");
+    return Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
+}
+
+function fakelags()
+{
+    if(UI.GetValue("Script items", "Off fakelags onstand"))
+    {
+        if(GetVelocity(Entity.GetLocalPlayer()) <= 3)
+        {
+            UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", 0);
+        }
+        else
+        {
+            UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", 6);
+        }
+    }
+}
+
+function draw() 
+{
+	var ping = Math.round(Local.Latency() * 1000 - 16)
+    var today = new Date();
+    var hours1 = today.getHours();
+    var minutes1 = today.getMinutes();
+    var seconds1 = today.getSeconds();
+    var hours = hours1 <= 9 ? "0" + today.getHours() + ":" : today.getHours() + ":";
+    var minutes = minutes1 <= 9 ? "0" + today.getMinutes() + ":" : today.getMinutes() + ":";
+    var seconds = seconds1 <= 9 ? "0" + today.getSeconds() : today.getSeconds()    ;
+    const alpha = Math.sin(Math.abs(-Math.PI + (Globals.Curtime() * (1 / .75)) % (Math.PI * 2))) * 255;
+	var screen_size = Render.GetScreenSize()
+	var font2 = Render.AddFont( "Small fonts", 7, 700);
+	var font3 = Render.AddFont( "Small fonts", 14, 500);
+	var local = Entity.GetLocalPlayer();
+    var text = "latency: " + (ping * 1) + "ms " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds ;   
+    var fps = Math.floor(1 / Global.Frametime());
+	
+	g_Local_weapon = Entity.GetWeapon(local);
+    weapon_name = Entity.GetName(g_Local_weapon);
+    g_Local_classname = Entity.GetClassName(g_Local_weapon);
+
+	var x1 = screen_size[0] / 2;
+	var y1 = screen_size[1] - 148;
+	
+	var x2 = screen_size[0] / 2 + 25;
+	var y2 = screen_size[1] - 110;
+	
+	var x3 = screen_size[0] / 2 - 25;
+	var y3 = screen_size[1] - 110;		   
+	
+	var y4 = screen_size[1] - 125;	
+	   
+	   if(!Entity.IsAlive(local))
+        return;
+//!!!!!!!!
+
+	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 92, 0, "!", [0,0,0,255], font3 );    
+	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 94, 0, "!", [0,0,0,255], font3 );    
+	Render.StringCustom(screen_size[0] / 2 - 17, screen_size[1] - 93, 0, "!", [0,0,0,255], font3 );    
+	Render.StringCustom(screen_size[0] / 2 - 15, screen_size[1] - 93, 0, "!", [0,0,0,255], font3 );               
+	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 93, 0, "!", [255,255,255,255], font3 );               
+//top
+	Render.Line( screen_size[0] / 2 - 17, screen_size[1] - 96, screen_size[0] / 2 - 11, screen_size[1] - 96, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 17, screen_size[1] - 95, screen_size[0] / 2 - 11, screen_size[1] - 95, [ 255, 255, 255, 195 ] );
+
+	Render.Line( screen_size[0] / 2 - 18, screen_size[1] - 95, screen_size[0] / 2 - 10, screen_size[1] - 95, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 18, screen_size[1] - 94, screen_size[0] / 2 - 10, screen_size[1] - 94, [ 255, 255, 255, 195 ] );
+//бока
+	Render.Line( screen_size[0] / 2 - 19, screen_size[1] - 93, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 19, screen_size[1] - 93, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 9, screen_size[1] - 93, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );	
+	Render.Line( screen_size[0] / 2 - 9, screen_size[1] - 93, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+//низ
+	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 72, screen_size[0] / 2 - 5, screen_size[1] - 72, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 5, screen_size[1] - 71, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 70, screen_size[0] / 2 - 5, screen_size[1] - 70, [ 255, 255, 255, 195 ] );
+//низ право
+	Render.Line( screen_size[0] / 2 - 5, screen_size[1] - 71, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+	Render.Line( screen_size[0] / 2 - 5, screen_size[1] - 71, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+//низ лев
+	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 165 ] );
+	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+	
+	
+//text	
+	Render.StringCustom(screen_size[0] / 2 - 101 , screen_size[1] - 80, 0, "bloodmoney", [0,0,0,alpha], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 81, 0, "bloodmoney", [255,255,255,alpha], font2 );
+
+	Render.StringCustom(screen_size[0] / 2 + 4 , screen_size[1] - 80, 0, "choke: 0%", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 5, screen_size[1] - 81, 0, "choke: 0%", [255,255,255,255], font2 );	
+
+	Render.StringCustom(screen_size[0] / 2 + 4, screen_size[1] - 66, 0, "loss: 0% (+- 0.5)", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 5, screen_size[1] - 67, 0, "loss: 0% (+- 0.5)", [255,255,255,255], font2 );	
+	
+	Render.StringCustom(screen_size[0] / 2 - 101 , screen_size[1] - 51, 0, "velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds, [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 52, 0, "velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds, [255,255,255,255], font2 );
+
+	Render.StringCustom(screen_size[0] / 2 - 101, screen_size[1] - 66, 0, "ping: " + (ping * 1), [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 67, 0, "ping: " + (ping * 1), [255,255,255,255], font2);
+
+	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 66, 0, "fps: " + fps , [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 67, 0, "fps: " + fps, [255,255,255,255], font2);
+//LG
+	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 21, 0, "lagcomp: ", [0,0,0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 22, 0, "lagcomp: ", [255,255,255,255], font2 );
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == false)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "unsafe", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "unsafe", [250, 42, 42,255], font2 );
+	}
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == true)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "broken", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "broken", [42, 250, 87,255], font2 );
+	}	
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == true)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "broken", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "broken", [42, 250, 87,255], font2 );
+	}	
+//DT
+	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 31, 0, "   exploit: ", [0,0,0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 32, 0, "   exploit: ", [255,255,255,255], font2 );
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == false)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "not ready", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "not ready", [250, 42, 42,255], font2 );
+	}
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == true)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "ready", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "ready", [42, 250, 87,255], font2 );
+	}	
+	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == true)
+	{	
+	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "ready", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "ready", [42, 250, 87,255], font2 );
+	}	
+}
+
+function fsn( ) {
+    ui_arat_val = UI.GetValue( "Aspect ratio" );
+
+    switch ( Global.FrameStage( ) ) {
+        case 5: {
+            Global.ExecuteCommand( "r_aspectratio " + ui_arat_val.toString()/100 );
+
+            break;
+        }
+        default: break;
+    }
+}
+
+function autoscope()
+{
+    localplayer_index = Entity.GetLocalPlayer( )
+    localplayer_weapon = Entity.GetWeapon(localplayer_index)
+    weapon_name = Entity.GetName(localplayer_weapon)
+
+    if (weapon_name == "scar 20" ||  weapon_name == "g3sg1")
+        UI.SetValue( "Rage", "GENERAL", "General", "Auto scope", false )
+    else
+        UI.SetValue ("Rage", "GENERAL", "General", "Auto scope", true)
+}
+
+function safeAWP() {
+    SlocalPlayer = Entity.GetLocalPlayer()
+	SlocalPlayerWeapon = Entity.GetWeapon(SlocalPlayer)
+	SlocalPlayerWeaponName = Entity.GetName(SlocalPlayerWeapon)
+
+	if (SlocalPlayerWeaponName == 'awp' ) {
+		forceSafePoint = UI.IsHotkeyActive('Rage', 'GENERAL', 'General', 'Force safe point')
+		if (!forceSafePoint) {
+			UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
+			safePBackup = true
+		}
+	} else if (safePBackup) {
+		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
+		safePBackup = false
+	}
+}
+
+function peekBAIM() {
+
+	if (UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")) {
+		forceBaim = UI.IsHotkeyActive('Rage', 'GENERAL', 'General', 'Force body aim')
+		if (!forceBaim) {
+			UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force body aim')
+			baimBackup = true
+		}
+	} else if (baimBackup) {
+		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force body aim')
+		baimBackup = false
+	}
+}
+
+function freestanding()
+{
+    if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Freestanding"))
+    {
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", true);
+    }
+    else
+    {
+        {
+            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
+        }
+    }
+}
+
+function drawscope() {
+    var dist = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Distance from crosshair");
+    var size = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Size of lines");
+    var color =UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Scope color" );
+    var local = Entity.GetLocalPlayer();
+    var is_scope = Entity.GetProp (local, "DT_CSPlayer", "m_bIsScoped");
+    SlocalPlayer = Entity.GetLocalPlayer()
+    SlocalPlayerWeapon = Entity.GetWeapon(SlocalPlayer)
+    SlocalPlayerWeaponName = Entity.GetName(SlocalPlayerWeapon)
+
+    if ( is_scope && (SlocalPlayerWeaponName == 'awp' || SlocalPlayerWeaponName == "ssg 08" || SlocalPlayerWeaponName == "scar 20" || SlocalPlayerWeaponName == "g3sg1")) {
+            var screen_size = Global.GetScreenSize();
+            x = screen_size[0] / 2;
+            y = screen_size[1] / 2;
+
+        Render.GradientRect ( x + dist + 1, y, size, 1, 1, color, [ 55, 59,  68,  0 ] );
+        Render.GradientRect ( x, y + dist + 1, 1, size, 0, color, [ 55, 59,  68,  0 ] );
+        Render.GradientRect ( x - dist  - size, y, size, 1, 1, [ 55, 59,  68,  0 ], color );
+        Render.GradientRect ( x, y - dist - size, 1, size, 0, [ 55, 59,  68,  0 ], color );
+
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display indicators", false)
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display arrows", false)
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Indicator", false)
+		Convar.SetFloat("cl_draw_only_deathnotices", 1)
+		Convar.SetFloat("r_drawvgui", 0)
+        }
+        else
+        {
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display indicators", true)
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display arrows", true)
+        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Indicator", true)
+		Convar.SetFloat("cl_draw_only_deathnotices", 0)
+		Convar.SetFloat("r_drawvgui", 1)
+        }
+    }
+
+// && (SlocalPlayerWeaponName == 'awp' || SlocalPlayerWeaponName == "ssg 08")
+//        Cheat.ExecuteCommand("cl_draw_only_deathnotices 1")
+//        Convar.SetFloat("r_drawvgui", 0);
+//        UI.SetValue("Visual", "WORLD", "Entities", "Removals", 59);
+
+hitboxes = [
+    'generic',
+    'head',
+    'chest',
+    'stomach',
+    'left arm',
+    'right arm',
+    'left leg',
+    'right leg',
+    '?'
+];
+var scriptitems = ("Misc", "JAVASCRIPT", "Script items");
+var shots = 0;
+var predicthc = 0;
+var safety = 0;
+var hitboxName = "";
+var choked = 0;
+var exploit = 0;
+var logs = [];
+var logsct = [];
+var logsalpha = [];
+function getHitboxName(index)
+{
+    switch (index)
+    {
+        case 0:
+            hitboxName = "head";
+            break;
+        case 1:
+            hitboxName = "head";
+            break;
+        case 2:
+            hitboxName = "stomach";
+            break;
+        case 3:
+            hitboxName = "stomach";
+            break;
+        case 4:
+            hitboxName = "stomach";
+            break;
+        case 5:
+            hitboxName = "chest";
+            break;
+        case 6:
+            hitboxName = "chest";
+            break;
+        case 7:
+            hitboxName = "left leg";
+            break;
+        case 8:
+            hitboxName = "right leg";
+            break;
+        case 9:
+            hitboxName = "left leg";
+            break;
+        case 10:
+            hitboxName = "right leg";
+            break;
+        case 11:
+            hitboxName = "left leg";
+            break;
+        case 12:
+            hitboxName = "right leg";
+            break;
+        case 13:
+            hitboxName = "left arm";
+            break;
+        case 14:
+            hitboxName = "right arm";
+            break;
+        case 15:
+            hitboxName = "left arm";
+            break;
+        case 16:
+            hitboxName = "left arm";
+            break;
+        case 17:
+            hitboxName = "right arm";
+            break;
+        case 18:
+            hitboxName = "right arm";
+            break;
+        default:
+            hitboxName = "body";
+    }
+    return hitboxName;
+}
+function HitgroupName(index) {
+    return hitboxes[index] || 'body';
+	                         }
+
+var target = -1;
+var shots_fired = 0;
+var hits = 0;
+var lastUpdate = 0;
+var logged = false;
+
+function ragebot_fire() {
+	predicthc = Event.GetInt("hitchance");
+	safety = Event.GetInt("safepoint");
+	hitboxName = getHitboxName(Event.GetInt("hitbox"));
+	exploit = (Event.GetInt("exploit")+1).toString();
+  target = Event.GetInt("target_index");
+  shots_fired++;
+  logged = false;
+  lastUpdate = Globals.Curtime();
+}
+
+function hitlog() {
+    var hit = Entity.GetEntityFromUserID(Event.GetInt("userid"));
+    var attacker = Entity.GetEntityFromUserID(Event.GetInt("attacker"));
+    if (attacker == Entity.GetLocalPlayer() && hit == target) hits++;
+
+    var hittype = "Hit ";
+    me = Entity.GetLocalPlayer();
+    hitbox = Event.GetInt('hitgroup');
+    target_damage = Event.GetInt("dmg_health");
+    target_health = Event.GetInt("health");
+    victim = Event.GetInt('userid');
+    attacker = Event.GetInt('attacker');
+    weapon = Event.GetString('weapon');
+    victimIndex = Entity.GetEntityFromUserID(victim);
+    attackerIndex = Entity.GetEntityFromUserID(attacker);
+    name = Entity.GetName(victimIndex);
+  	var simtime = Globals.Tickcount() % 17;
+
+    var flags = "";
+
+    if (exploit == 2)
+      flags += "T";
+
+    flags += "B";
+
+    if (hitbox == 1)
+      flags += "H";
+
+  	if (safety == 1) {
+  		safety = "true";
+  	}
+  	else {
+  		safety = "false";
+  	}
+
+    if (weapon == "hegrenade")
+      hittype = "Naded ";
+    else if (weapon == "inferno")
+      hittype = "Burned ";
+    else if (weapon == "knife")
+      hittype = "Knifed ";
+
+    if (me == attackerIndex && me != victimIndex) {
+		Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+    if (hittype == "Hit ") {
+        if (UI.GetValue("Script items", "Enable chat logging")) {
+            Cheat.PrintChat(" \x08[\x0conetap\x08] [\x0c"+shots.toString()+"\x08] "+hittype+name+"'s \x10"+HitgroupName(hitbox)+"\x08 for \x07"+target_damage.toString()+"\x08 ("+target_health.toString()+" remaining) aimed=\x10"+hitboxName+"\x08("+predicthc.toString()+"%%) safety=\x03"+safety+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)\n");
+        }
+      Cheat.Print("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining) aimed="+hitboxName+"("+predicthc.toString()+"%%) bt=0 ("+flags+") ("+simtime+":"+exploit+")\n");
+  		logs.push("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining) aimed="+hitboxName+"("+predicthc.toString()+"%%) bt=0 ("+flags+") ("+simtime+":"+exploit+")");
+    }
+    else {
+      Cheat.Print("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining) \n");
+  		logs.push("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining)");
+    }
+
+		logsct.push(Globals.Curtime());
+		logsalpha.push(255);
+	}
+
+  if (shots == 99)
+    shots = 0;
+  else
+    shots++;
+
+}
+
+function removelogs() {
+	if (logs.length > 6) {
+		logs.shift();
+		logsct.shift();
+		logsalpha.shift();
+	}
+
+	if (logsct[0] + 6.5 < Globals.Curtime()) {
+		logsalpha[0] -= Globals.Frametime() * 600;
+		if (logsalpha[0] < 0) {
+			logs.shift();
+			logsct.shift();
+			logsalpha.shift();
+		}
+	}
+}
+
+function item_purchase() {
+	Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+	Cheat.Print(Entity.GetName(Entity.GetEntityFromUserID(Event.GetInt("userid")))+" bought "+Event.GetString("weapon")+"\n");
+	logs.push(Entity.GetName(Entity.GetEntityFromUserID(Event.GetInt("userid")))+" bought "+Event.GetString("weapon")+"");
+	logsct.push(Globals.Curtime());
+	logsalpha.push(255);
+}
+
+function onDraw() {
+    if (!World.GetServerString()) return;
+    var font = Render.AddFont("Lucida Console", 8, 0);
+
+
+	for (i = 0; i < logs.length; i++) {
+        Render.StringCustom(4, 4 + 13*i, 0, logs[i], [0, 0, 0, logsalpha[i]], font);
+		Render.StringCustom(3, 3 + 13*i, 0, logs[i], [255, 255, 255, logsalpha[i]], font);
+    }
+
+    if (shots_fired > hits && (Globals.Curtime() - lastUpdate > 0.33)) {
+      if (Globals.Curtime() - lastUpdate > 1) {
+        shots_fired = 0;
+        hits = 0;
+      }
+      if (!logged) {
+        var simtime = Globals.Tickcount() % 16;
+        logged = true;
+        var issafe = "true";
+        var reason = "resolver";
+        if (safety == 0) {
+          issafe = "false";
+        }
+
+		if (Entity.IsAlive(target) == false)
+			reason = "death";
+		else if (Entity.IsAlive(Entity.GetLocalPlayer()) == false)
+			reason = "dead";
+        else if (safety == true && predicthc < 76)
+            reason = "spread";
+        else if (safety == true && predicthc > 76)
+            reason = "prediction error";
+
+        var flags = "";
+
+        if (exploit == 2)
+          flags += "T";
+
+          flags += "B";
+
+        Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+        Cheat.Print("["+shots.toString()+"] "+"Missed "+Entity.GetName(target)+"'s "+hitboxName+"("+predicthc.toString()+"%%) due to "+reason+", bt=0 ("+flags+") ("+simtime+":"+exploit+")\n");
+            logs.push("["+shots.toString()+"] "+"Missed "+Entity.GetName(target)+"'s "+hitboxName+"("+predicthc.toString()+"%%) due to "+reason+", bt=0 ("+flags+") ("+simtime+":"+exploit+")");
+
+            if (UI.GetValue("Script items", "Enable chat logging")) {
+                Cheat.PrintChat(" \x08[\x0conetap\x08] [\x0c"+shots.toString()+"\x08] "+"\x08Missed "+Entity.GetName(target)+"'s \x10"+hitboxName+"\x08("+predicthc.toString()+"%%) due to \x07"+reason+"\x08, safety=\x03"+issafe+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)");
+            }
+        logsct.push(Globals.Curtime());
+    		logsalpha.push(255);
+        if (shots == 99)
+          shots = 0;
+        else
+          shots++;
+      }
+    }
+}
+
+function ragdollForce( )
+{
+    UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Ragdoll Gravity", "1")
+
+    framestage = Cheat.FrameStage();
+    if (framestage == 3)
+    {   
+        entities = Entity.GetEntities();
+        for (i = 0; i < entities.length; i++)
+        {
+            classID = Entity.GetClassID(entities[i]);
+            if (classID == 42)
+            {
+                dir = Entity.GetProp(entities[i], "CCSRagdoll", "m_vecRagdollVelocity");
+                dir[0] = 0
+                dir[1] = 0
+                dir[2] = 999999
+                dir1 = Entity.GetProp(entities[i], "CBaseAnimating", "m_vecForce");
+                dir1[0] = 0
+                dir1[1] = 0
+                dir1[2] = 999999
+                Entity.SetProp(entities[i], "CCSRagdoll", "m_vecRagdollVelocity", dir);
+                Entity.SetProp(entities[i], "CBaseAnimating", "m_vecForce", dir1);
+            }
+        }
+        
+    }
+}
+
+function SetEnabled()
+{
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
+    {
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta type", 1)
+    }
+    else
+    {
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta type", 0)
+    }
+
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0 && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
+    {
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 1)
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 0)
+    }
+    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1 && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
+    {
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 0)
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 1)
+    }
+    else
+    {
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 0)
+       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 0)
+    }
+}
+
+function get_velocity(index)
+{
+    var velocity = Entity.GetProp(index, "CBasePlayer", "m_vecVelocity[0]");
+    return Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
+}
+
+function get_health(index)
+{
+    health_override = Entity.GetProp(index, "CBasePlayer", "m_iHealth");
+    return health_override;
+}
+
+function Low_delta()
+{
+    localplayer_index = Entity.GetLocalPlayer( );
+    const lowdelta_dropdown_value = UI.GetValue.apply(null, lowdelta_modes);
+
+    var velocity = get_velocity(localplayer_index)
+    var health = get_health(localplayer_index)
+    var LowHP = false
+    var SlowWalk = false
+    var Standing = false
+    var Onkey = false
+
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
+    {
+       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
+       SlowWalk = true
+       else
+       SlowWalk = false
+
+       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
+       LowHP = true
+       else
+       LowHP = false
+
+       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
+       Standing = true
+       else
+       Standing = false
+    }
+    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
+    {
+       if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
+       Onkey = true
+       else
+       Onkey = false
+    }
+
+        if (Standing == true || LowHP == true || SlowWalk == true || Onkey == true && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
+        {
+            AntiAim.SetOverride(1);
+            AntiAim.SetFakeOffset(0);
+		if(UI.IsHotkeyActive("Script items","Invertor Key"))
+		{
+          	  AntiAim.SetRealOffset(30);
+		}
+		else
+		{
+        	    AntiAim.SetRealOffset(-30);
+		}
+        }
+        else
+        {
+            AntiAim.SetOverride(0);
+        }
+}
+
+function drawString()
+{
+    localplayer_index = Entity.GetLocalPlayer( );
+    localplayer_alive = Entity.IsAlive( localplayer_index );
+    const fontpixel = Render.AddFont( "Verdana", 8, 100);
+    const lowdelta_dropdown_value = UI.GetValue.apply(null, lowdelta_modes);
+    var SFOnkey = false
+    var screen_size = Global.GetScreenSize();
+    var velocity = get_velocity(localplayer_index)
+    var health = get_health(localplayer_index)
+
+    SlowWalk = false
+    LowHP = false
+    Standing = false
+    Onkey = false
+
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
+    {
+       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
+       SlowWalk = true
+       else
+       SlowWalk = false
+
+       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
+       LowHP = true
+       else
+       LowHP = false
+
+       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
+       Standing = true
+       else
+       Standing = false
+    }
+    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
+    {
+       if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
+       Onkey = true
+       else
+       Onkey = false
+    }
+
+    if (Standing == true || LowHP == true || SlowWalk == true || Onkey == true)
+    {
+        drawIND = true
+    }
+    else
+    {
+        drawIND = false
+    }
+
+    if (drawIND == true && localplayer_alive == true && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") == true)
+    {
+    }
+}
+
+function isActive(a) {
+        return UI.IsHotkeyActive("Script items", a)
+}
+
+function setValue(cat, value) {
+        UI.SetValue("Rage", cat.toUpperCase(), "Targeting", "Minimum damage", value)
+}
+
+function isPistol(name) {
+        if (name == "p2000" || weapon_name == "glock 18" || weapon_name == "dual berettas" || weapon_name == "usp s" || weapon_name == "five seven" || weapon_name == "p250" || weapon_name == "tec 9") {
+                return true
+        }
+}
+
+function isHeavyPistol(name) {
+        if (name == "r8 revolver" || name == "desert eagle") {
+                return true
+        }
+}
+
+function isAutoSniper(name) {
+        if (name == "scar 20" || weapon_name == "g3sg1") {
+                return true
+        }
+}
+
+
+function onCM() {
+        weapon_value = UI.GetValue("Script items", "Weapon Mindmg")
+        weapon_name = Entity.GetName(Entity.GetWeapon(Entity.GetLocalPlayer()))
+
+        if (isActive("Weapon Override") && isPistol(weapon_name)) {
+
+                setValue("PISTOL", weapon_value)
+        } else {
+                setValue("PISTOL", pistol_cache)
+        }
+
+        if (isActive("Weapon Override") && isHeavyPistol(weapon_name)) {
+                setValue("HEAVY PISTOL", weapon_value)
+        } else {
+                setValue("HEAVY PISTOL", heavy_cache)
+        }
+
+        if (isActive("Weapon Override") && weapon_name == "ssg 08") {
+                setValue("SCOUT", weapon_value)
+        } else {
+                setValue("SCOUT", scout_cache)
+        }
+
+        if (isActive("Weapon Override") && weapon_name == "awp") {
+                setValue("AWP", weapon_value)
+        } else {
+                setValue("AWP", awp_cache)
+        }
+
+        if (isActive("Weapon Override") && isAutoSniper(weapon_name)) {
+
+                setValue("AUTOSNIPER", weapon_value)
+        } else {
+                setValue("AUTOSNIPER", auto_cache)
+        }
+
+
+}
+
+function ChangeDist()
+{
+    Dist = UI.GetValue( "Misc", "JAVASCRIPT", "TP Dist");
+    UI.SetValue( "Visuals", "WORLD", "View", "Thirdperson", Dist );
+}
+
+alpha_main = 0
+alpha_anim = 0
+add_anim   = 0
+
+value_duck = 0
+alpha_duck_anim = 0
+alpha_duck = 0
+add_duck   = 0
+
+value_damage = 0
+alpha_damage = 0
+add_damage   = 0
+
+value_FS = 0
+alpha_FS = 0
+add_FS   = 0
+
+value_SP = 0
+alpha_SP = 0
+add_SP   = 0
+
+value_BAIM = 0
+alpha_BAIM = 0
+add_BAIM   = 0
+
+value_legit = 0
+alpha_legit = 0
+add_legit   = 0
+
+value_onshot = 0
+alpha_onshot = 0
+add_onshot   = 0
+
+value_autopeek = 0
+alpha_autopeek = 0
+add_autopeek   = 0
+
+value_dt = 0
+alpha_dt = 0
+add_dt   = 0
+red_dt   = 0
+green_dt = 0
+
+value_hs = 0
+alpha_hs = 0
+add_hs   = 0
+
+value_arc = 0
+alpha_anim_state = false
+alpha_duck_state = false
+
+//animation function
+
+clamp = function (val, min, max) {
+   if (val > max)
+      return max
+   if (min > val)
+      return min
+   return val
+}
+function indication() {
+   if (World.GetServerString() == "")
+      return;
+
+   player = Entity.GetLocalPlayer()
+   
+   isDoubletap = UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
+   IsSAFEP = UI.IsHotkeyActive("Rage", "General", "Force safe point")
+   islowdelta = UI.IsHotkeyActive("Script items", "Low delta on key")
+   isHideShot = UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
+   isDamageOverride = UI.IsHotkeyActive("Script items", "Weapon Override")
+   isForceBody = UI.IsHotkeyActive("Rage", "General", "Force body aim")
+   isFakeDuck = UI.IsHotkeyActive("Anti-Aim", "Extra", "Fake duck") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
+   isAutoPick = UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")
+   isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 3 ? true : false )
+   isFS = UI.IsHotkeyActive("Script items", "Freestanding")
+   //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   add_y = 40
+   //animation
+   add_factor = 10
+   fade_factor = ((1 / .15) * Globals.Frametime() * 200) / 200
+   
+   
+   fade_factor_anim = ((1 / .9) * Globals.Frametime()) * 200
+   fade_factor_duck = ((1 / .1) * Globals.Frametime()) * 200
+   
+   //main
+   //Dead animation
+   if ((!Entity.IsAlive(player) && alpha_main != 0 || Input.IsKeyPressed(0x09)) )
+      alpha_main = clamp(alpha_main - fade_factor * 100, 0, 255)
+   if (Entity.IsAlive(player) && alpha_main != 255 && !Input.IsKeyPressed(0x09) )
+      alpha_main = clamp(alpha_main + fade_factor * 100, 0, 255)
+   //buttons
+   	if(UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Display indicators' ))
+	{
+   //Damage animation
+    if (isDamageOverride && alpha_damage != 1 && alpha_main == 255){
+       value_damage = clamp(value_damage + fade_factor, 0, 1.0)
+       alpha_damage = clamp(alpha_damage + fade_factor * value_damage, 0, 1.0)
+       add_damage   = clamp(add_damage + fade_factor * value_damage, 0, 1.0)
+    }
+    if (!isDamageOverride && alpha_damage != 0 || alpha_main != 255){
+       value_damage = clamp(value_damage - fade_factor, 0, 1)
+       alpha_damage = clamp(alpha_damage - fade_factor * alpha_damage, 0, 1)
+       add_damage = clamp(add_damage - fade_factor * add_damage, 0, 1)
+    }
+    if(alpha_damage < 0.01) alpha_damage = 0
+    if(add_damage < 0.01)   add_damage   = 0
+   //Baim animation
+    if (isForceBody && alpha_BAIM != 1 && alpha_main == 255){
+       value_BAIM = clamp(value_BAIM + fade_factor, 0, 1.0)
+       alpha_BAIM = clamp(alpha_BAIM + fade_factor * value_BAIM, 0, 1.0)
+       add_BAIM   = clamp(add_BAIM + fade_factor * value_BAIM, 0, 1.0)
+    }
+    if (!isForceBody && alpha_BAIM != 0 || alpha_main != 255){
+       value_BAIM = clamp(value_BAIM - fade_factor, 0, 1)
+       alpha_BAIM = clamp(alpha_BAIM - fade_factor * alpha_BAIM, 0, 1)
+       add_BAIM = clamp(add_BAIM - fade_factor * add_BAIM, 0, 1)
+    }
+    if(alpha_BAIM < 0.01) alpha_BAIM = 0
+    if(add_BAIM < 0.01)   add_BAIM   = 0
+   //Legit AA animation
+   if (isLegitAA && alpha_legit != 1 && alpha_main == 255){
+      value_legit = clamp(value_legit + fade_factor, 0, 1)
+      alpha_legit = clamp(alpha_legit+ fade_factor * value_legit, 0, 1)
+      add_legit = clamp(add_legit + fade_factor * value_legit, 0, 1)
+   }
+   if (!isLegitAA && alpha_legit != 0 || alpha_main != 255){
+      value_legit = clamp(value_legit - fade_factor, 0, 1)
+      alpha_legit = clamp(alpha_legit - fade_factor * alpha_legit, 0, 1)
+      add_legit = clamp(add_legit - fade_factor * add_legit , 0, 1)
+   }
+   if(alpha_legit < 0.01) alpha_legit = 0
+   if(add_legit < 0.01)   add_legit   = 0
+   //Auto Peek animation
+   if (isAutoPick && alpha_autopeek != 1 && alpha_main == 255){
+      value_autopeek = clamp(value_autopeek + fade_factor, 0, 1)
+      alpha_autopeek = clamp(alpha_autopeek + fade_factor * value_autopeek, 0, 1)
+      add_autopeek   = clamp(add_autopeek   + fade_factor * value_autopeek, 0, 1)
+   }
+   if (!isAutoPick && alpha_autopeek != 0 || alpha_main != 255){
+      value_autopeek = clamp(value_autopeek - fade_factor, 0, 1)
+      alpha_autopeek = clamp(alpha_autopeek - fade_factor * alpha_autopeek, 0, 1)
+      add_autopeek   = clamp(add_autopeek   - fade_factor * add_autopeek, 0, 1)
+   }
+      if(alpha_autopeek < 0.01) alpha_autopeek = 0
+      if(add_autopeek < 0.01)   add_autopeek   = 0 
+   //FS animation
+   if (isFS && alpha_FS != 1 && alpha_main == 255){
+      value_FS = clamp(value_FS + fade_factor, 0, 1)
+      alpha_FS = clamp(alpha_FS + fade_factor * value_FS, 0, 1)
+      add_FS   = clamp(add_FS   + fade_factor * value_FS, 0, 1)
+   }
+   if (!isFS && alpha_FS != 0 || alpha_main != 255){
+      value_FS = clamp(value_FS - fade_factor, 0, 1)
+      alpha_FS = clamp(alpha_FS - fade_factor * alpha_FS, 0, 1)
+      add_FS   = clamp(add_FS   - fade_factor * add_FS, 0, 1)
+   }
+      if(alpha_FS < 0.01) alpha_FS = 0
+      if(add_FS < 0.01)   add_FS   = 0 
+   //SP animation
+   if (IsSAFEP && alpha_SP != 1 && alpha_main == 255){
+      value_SP = clamp(value_SP + fade_factor, 0, 1)
+      alpha_SP = clamp(alpha_SP + fade_factor * value_SP, 0, 1)
+      add_SP   = clamp(add_SP   + fade_factor * value_SP, 0, 1)
+   }
+   if (!IsSAFEP && alpha_SP != 0 || alpha_main != 255){
+      value_SP = clamp(value_SP - fade_factor, 0, 1)
+      alpha_SP = clamp(alpha_SP - fade_factor * alpha_SP, 0, 1)
+      add_SP   = clamp(add_SP   - fade_factor * add_SP, 0, 1)
+   }
+      if(alpha_SP < 0.01) alpha_SP = 0
+      if(add_SP < 0.01)   add_SP   = 0
+   //ANIM animation
+    if (!isDoubletap && !isHideShot && alpha_main == 255) {
+       add_anim = clamp(add_anim + fade_factor, 0, 1)
+       if (alpha_anim_state == false) {
+          alpha_anim = clamp(alpha_anim + fade_factor_anim, 0, 255)
+          if (alpha_anim == 255)
+             alpha_anim_state = true
+       } else {
+          alpha_anim = clamp(alpha_anim - fade_factor_anim, 0, 255)
+         if (alpha_anim == 0)
+             alpha_anim_state = false
+      }
+    } else {
+      alpha_anim = clamp(alpha_anim - fade_factor * 100, 0, 255)
+      add_anim   = clamp(add_anim - fade_factor * add_anim, 0, 1)
+    }
+
+   //Fake Duck animation
+   if (isFakeDuck) {
+      if (alpha_duck_state == false) {
+         alpha_duck_anim = clamp(alpha_duck_anim + fade_factor_duck, 0, 255)
+         if (alpha_duck_anim == 255)
+            alpha_duck_state = true
+      } else {
+         alpha_duck_anim = clamp(alpha_duck_anim - fade_factor_duck, 0, 255)
+         if (alpha_duck_anim == 0)
+            alpha_duck_state = false
+      }
+   }
+   if(!isFakeDuck)
+      alpha_duck_anim = alpha_duck * 255
+   
+   if (isFakeDuck && add_duck != 1 && alpha_main == 255){
+      value_duck = clamp(value_duck + fade_factor, 0, 1)
+      add_duck   = clamp(add_duck   + fade_factor * value_duck, 0, 1)
+      alpha_duck = clamp(alpha_duck + fade_factor * value_duck, 0, 1)
+   }
+   if (!isFakeDuck && alpha_duck != 0  || alpha_main != 255){
+      value_duck = clamp(value_duck - fade_factor, 0, 1)
+      add_duck   = clamp(add_duck   - fade_factor * add_duck, 0, 1)
+      alpha_duck = clamp(alpha_duck - fade_factor * alpha_duck, 0, 1)
+   }
+   if(alpha_duck < 0.01) alpha_duck = 0
+   if(add_duck < 0.01) add_duck = 0
+
+   //Double tap animation
+if(!isFakeDuck && isDoubletap && green_dt != 1 && Exploit.GetCharge() >= 0.3 && alpha_main == 255){
+   value_dt = clamp(value_dt + fade_factor , 0, 1)
+   alpha_dt = clamp(alpha_dt + fade_factor  * value_dt, 0, 1)
+   green_dt = clamp(green_dt + fade_factor  * value_dt, 0, 1)
+}
+
+if(!isFakeDuck && isDoubletap) add_dt   = clamp(add_dt   + fade_factor  * value_dt, 0, 1)
+if(!isDoubletap || alpha_main != 255 || isFakeDuck) alpha_dt = clamp(alpha_dt - fade_factor  * alpha_dt, 0, 1)
+if(!isDoubletap || alpha_main != 255 || isFakeDuck) add_dt   = clamp(add_dt   - fade_factor  * add_dt, 0, 1)
+
+if(!isDoubletap && alpha_dt != 0 || Exploit.GetCharge() <= 0.3  || alpha_main != 255){
+   value_dt = clamp(value_dt - fade_factor , 0, 1)
+   green_dt = clamp(green_dt - fade_factor * green_dt, 0, 1)
+   
+}
+if(isDoubletap && red_dt != 150 && Exploit.GetCharge() >= 0.3 && alpha_main == 255)
+red_dt = clamp(red_dt   - fade_factor * 75, 150, 255)
+
+if(!isDoubletap && red_dt != 255 || Exploit.GetCharge() <= 0.3 || alpha_main != 255)
+red_dt = clamp(red_dt   + fade_factor * 75 , 150, 255)
+if(alpha_dt < 0.01) alpha_dt = 0
+if(add_dt < 0.01) add_dt = 0
+dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
+   //Hide Shots Animation
+   if(!isFakeDuck && isHideShot && !isDoubletap && alpha_hs != 1 && Exploit.GetCharge() >= 0.3 && alpha_main == 255){
+      value_hs = clamp(value_hs + fade_factor , 0, 1)
+      alpha_hs = clamp(alpha_hs + fade_factor  * value_hs, 0, 1)
+      add_hs = clamp(alpha_hs + fade_factor  * value_hs, 0, 1)
+   }
+
+   if(!isHideShot || isDoubletap && alpha_hs != 0 || alpha_main != 255 || isFakeDuck){
+      value_hs = clamp(value_hs - fade_factor , 0, 1)
+      alpha_hs = clamp(alpha_hs - fade_factor  * alpha_hs, 0, 1)
+      add_hs = clamp(alpha_hs - fade_factor  * add_hs, 0, 1)
+   }
+   
+   hs_color = [250,200,0,alpha_hs * 255]
+
+   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y + 1, 1, "BLOODMONEY", [0, 0, 0, alpha_main],3);
+   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y, 1, "BLOODMONEY", [105, 126, 203, alpha_main],3);
+
+   if(alpha_dt != 0){
+      add_y = add_y + add_dt * add_factor
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "DT", [0, 0, 0, dt_color[3]], 3);
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "DT", dt_color, 3);
+   }
+
+   if(alpha_hs != 0){
+      add_y = add_y + add_hs * add_factor
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "HIDE", [0, 0, 0, hs_color[3]], 3);
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "HIDE", hs_color, 3);
+   }
+
+    if (islowdelta) {
+       add_y = add_y + add_factor
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "IDEAL YAW", [0, 0, 0, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "IDEAL YAW", [105, 126, 203, alpha_main], 3);
+    } else {
+       add_y = add_y + add_factor
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "STATIC", [0, 0, 0, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [105, 126, 203, alpha_main], 3);
+    }
+   
+
+   
+
+   
+   
+
+   if (isFakeDuck || alpha_duck_anim > 0 && alpha_main > 50) {
+      add_y = add_y + add_duck * add_factor;
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DUCK", [0, 0, 0, alpha_duck_anim], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DUCK", [158, 181, 113, alpha_duck_anim], 3);
+   }
+
+//  if (alpha_autopeek > 0) {
+//      add_y = add_y + add_autopeek * add_factor ;
+//   
+//      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
+//      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
+//   }
+   if (alpha_FS > 0) {
+      add_y = add_y + add_FS * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "FREE", [0, 0, 0, alpha_FS * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "FREE", [197, 237, 121, alpha_FS * 255], 3);
+   }
+   if (alpha_SP > 0) {
+      add_y = add_y + add_SP * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "SAFE", [0, 0, 0, alpha_SP * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "SAFE", [141, 140, 197, alpha_SP * 255], 3);
+   }
+    if (alpha_damage > 0) {
+       add_y = add_y + add_damage * add_factor;
+   
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DMG", [0, 0, 0, alpha_damage * 255], 3);
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DMG", [158, 181, 113, alpha_damage * 255], 3);
+    }
+//    if (alpha_BAIM > 0) {
+//       add_y = add_y + add_BAIM * add_factor;
+//   
+//       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
+//       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
+//    }
+
+
+    if (alpha_BAIM > 0 && alpha_autopeek > 0) {
+       add_y = add_y + add_BAIM * add_factor;
+   
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BPEEK", [0, 0, 0, alpha_BAIM * 255], 3);
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BPEEK", [73, 71, 166, alpha_BAIM * 255], 3);
+    } else if (alpha_BAIM > 0) {
+       add_y = add_y + add_BAIM * add_factor;
+   
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
+    } else if (alpha_autopeek > 0) {
+      add_y = add_y + add_autopeek * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
+   }
+
+   if (alpha_legit > 0) {
+      add_y = add_y + add_legit * add_factor;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "LEGIT", [0, 0, 0, alpha_legit * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "LEGIT", [20, 255, 0, alpha_legit* 255], 3);
+   }
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   
+   if(isDoubletap && Exploit.GetCharge() >= 0.5 ){
+      value_arc = clamp(value_arc + fade_factor * 1.2 * value_dt, 0, 1)
+     } else {
+      value_arc = clamp(value_arc - fade_factor * 1.2 * value_arc, 0, 1)
+     }
+   
+   //render arc
+    if (alpha_main > 50 && Entity.IsAlive(player)) {
+        
+   //971
+        x = (screen_size[0] / 2 + 8)
+        y = (screen_size[1] / 2 + 14 + add_dt * add_factor)
+        distance = 4.5
+        inner_radius = 2.3
+        segments = 30
+        
+        
+      if(value_arc < 0.01) value_arc = 0
+        max_angle = 360 * value_arc;
+        
+
+       render_arc(x + 6, y + 31, distance, inner_radius, -90, max_angle, segments, [0, 0, 0, 120 * alpha_dt]);
+       render_arc(x + 5, y + 30, distance, inner_radius, -90, max_angle, segments, dt_color);
+
+
+
+         function render_arc(x, y, radius, radius_inner, start_angle, end_angle, segments, dt_color) {
+          while (360 % segments != 0) {
+             segments++;
+          }
+
+          segments = 360 / segments;
+
+          for (var i = start_angle; i < start_angle + end_angle; i = i + segments) {
+
+             var rad = i * Math.PI / 180;
+               var rad2 = (i + segments) * Math.PI / 180;
+
+             var rad_cos = Math.cos(rad)
+              var rad_sin = Math.sin(rad)
+
+              var rad2_cos = Math.cos(rad2);
+              var rad2_sin = Math.sin(rad2);
+
+              var x1_outer = x + rad_cos * radius;
+              var y1_outer = y + rad_sin * radius;
+
+              var x2_outer = x + rad2_cos * radius;
+             var y2_outer = y + rad2_sin * radius;
+
+             var x1_inner = x + rad_cos * radius_inner;
+             var y1_inner = y + rad_sin * radius_inner;
+
+             var x2_inner = x + rad2_cos * radius_inner;
+             var y2_inner = y + rad2_sin * radius_inner;
+
+             Render.Polygon([
+                [x1_outer, y1_outer],
+                [x2_outer, y2_outer],
+                [x1_inner, y1_inner]
+             ],
+                dt_color
+             );
+
+             Render.Polygon([
+                  [x1_inner, y1_inner],
+                  [x2_outer, y2_outer],
+                 [x2_inner, y2_inner]
+               ],
+                  dt_color
+             );
+          }
+         }
+      }
+   }
+}
+
+function delta() {
+    local = Entity.GetLocalPlayer();
+    if (!UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Indicator") || !Entity.IsValid(local) || !Entity.IsAlive(local)) return;
+    font = Render.AddFont("Verdana", 8, 400);
+    x = screen_size[0];
+    y = screen_size[1];
+    coldelt = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Indicator color");
+    real_yaw = Local.GetRealYaw();
+    fake_yaw = Local.GetFakeYaw();
+    delta = Math.min(Math.abs(real_yaw - fake_yaw) / 2, 60).toFixed(0);
+    delta_size = Render.TextSizeCustom(delta, font);
+    Render.StringCustom(x / 2, y / 2 + 10, 1, delta, [255, 255, 255, 255], font);
+    Render.GradientRect(x / 2, y / 2 + 30, (45 / 60) * delta, 2, 1, coldelt, [0, 0, 0, 0]);
+    Render.GradientRect(x / 2 - (45 / 60) * delta + 1, y / 2 + 30, (45 / 60) * delta, 2, 1, [0, 0, 0, 0], coldelt);
+}
+
+var clock = 0;
+
+function anim()
+{
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Animfucker"))
+    {
+        clock = clock + 0.5
+        if (clock > 1)
+        {
+            if (UI.GetValue("Misc", "GENERAL", "Movement", "Slide walk"))
+            {
+                UI.SetValue("Misc", "GENERAL", "Movement", "Slide walk", 0);
+                clock = 0
+            }
+            else
+            {
+                UI.SetValue("Misc", "GENERAL", "Movement", "Slide walk", 1);
+                clock = 0
+            }
+        }
+    }
+}
+
+function Main()
+{
+                  UI.AddLabel("-----------Arrows ind-----------")
+	UI.AddColorPicker( "Arrows color" )
+	UI.AddColorPicker( "Selected arrow color" )
+	UI.AddColorPicker( "Selected inverter color" )
+                  UI.AddCheckbox( "Display indicators")
+	UI.AddCheckbox( "Display arrows")
+                  UI.AddHotkey("Left")
+                  UI.AddHotkey("Right")
+                  UI.AddLabel("----------Aspect Ratio----------")
+                  UI.AddSliderInt( "Aspect ratio", 0, 500 );
+                  UI.AddLabel("------------Anti-Aim------------")
+                  UI.AddCheckbox("Off fakelags onstand")
+                  UI.AddHotkey( "Freestanding" ); 
+                  UI.AddCheckbox("Animfucker");    
+                  UI.AddCheckbox("Low delta");
+                  UI.AddDropdown( "Low delta type", [ "Custom", "On key" ] );
+                  UI.AddHotkey("Low delta on key");
+                  UI.AddHotkey("Invertor Key");         
+                  UI.AddLabel("----------Min-Damage---------")
+                  UI.AddHotkey("Weapon Override")
+                  UI.AddSliderInt("Weapon Mindmg", 0, 130)
+                  UI.AddLabel("-------------Visuals-------------")
+                  UI.AddSliderInt ("Distance from crosshair", 0, 200);
+                  UI.AddSliderInt ("Size of lines", 20, 200);
+                  UI.AddColorPicker( "Scope color" );
+                  UI.AddCheckbox("Indicator");
+                  UI.AddColorPicker("Indicator color");
+                  UI.AddLabel("--------Aimbot logging--------")
+                  UI.AddCheckbox( "Enable chat logging" );
+                  UI.AddLabel("----------Third-Person----------")
+                  UI.AddSliderFloat("TP Dist", 50, 300)
+	
+	//  callbacks
+	Global.RegisterCallback("Draw", "drawind")
+	Global.RegisterCallback("CreateMove", "ManualAA")
+	Global.RegisterCallback("player_connect_full", "player_connect")
+                  Global.RegisterCallback("Draw", "draw")
+                  Global.RegisterCallback( "FrameStageNotify", "fsn" )
+                  Global.RegisterCallback("Draw","autoscope")
+                  Global.RegisterCallback("CreateMove", "freestanding")
+                  Global.RegisterCallback('Draw', 'safeAWP')
+                  Global.RegisterCallback('Draw', 'peekBAIM')
+                  Global.RegisterCallback("Draw", "drawscope")
+	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
+	Global.RegisterCallback("item_purchase", "item_purchase");
+                  Global.RegisterCallback("player_hurt", "hitlog");
+	Global.RegisterCallback("Draw", "onDraw");
+	Global.RegisterCallback("Draw", "removelogs");
+                  Global.RegisterCallback("FrameStageNotify", "ragdollForce");
+                  Global.RegisterCallback("Draw", "drawString");
+                  Global.RegisterCallback("Draw", "SetEnabled");
+                  Global.RegisterCallback("CreateMove", "onCM")
+                  Global.RegisterCallback("CreateMove", "Low_delta");
+                  Global.RegisterCallback("FrameStageNotify", "ChangeDist");
+	Global.RegisterCallback("Draw", "indication")
+                  Global.RegisterCallback("Draw", "delta");
+                  Global.RegisterCallback("CreateMove", "anim");
+                  Global.RegisterCallback("CreateMove", "fakelags");
+
+}
+Main();
