@@ -5,18 +5,21 @@ var drawLeft = 0; drawNotActive = 1;
 var drawRight = 0
 var leftWasPressed = false; var rightWasPressed = false;
 var safePBackup = false
-var baimBackup
 var heavy_cache = UI.GetValue("Rage", "HEAVY PISTOL", "Targeting", "Minimum damage")
 var scout_cache = UI.GetValue("Rage", "SCOUT", "Targeting", "Minimum damage")
 var awp_cache = UI.GetValue("Rage", "AWP", "Targeting", "Minimum damage")
 var auto_cache = UI.GetValue("Rage", "AUTOSNIPER", "Targeting", "Minimum damage")
 var pistol_cache = UI.GetValue("Rage", "PISTOL", "Targeting", "Minimum damage")
+var fake_cache = UI.GetValue("Anti-Aim", "Fake-Lag", "Limit")
 const lowdelta_modes = UI.AddMultiDropdown("Low delta modes", [ "Slow walk", "Low HP", "Standing" ])
 var jump = false
 var oldTick = 0
 var lastPressed = 0
 var isNotActive = false
 var clock = 0
+var tickcount = 0
+var original_aa = true;
+var flip = false
 
 function isDoubleTapActive()
 {
@@ -30,12 +33,12 @@ function correctLBYMode()
 {
 	if (isDoubleTapActive() == 1)
 	{
-			UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "0")
+			//UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "0")
 			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 6);
 	}
 	else
 	{
-			UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "1")
+			//UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "1")
 			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 64);
 	}
 }
@@ -70,11 +73,13 @@ function drawind()
 
                                     if (isInverter == 1)
                                     {
-                                    Render.FilledRect((screen_size[0] /2) - 29, (screen_size[1] /2) - 7, 2, 15, [color[0], color[1], color[2], 255]);       
+                                    Render.FilledRect((screen_size[0] /2) - 29, (screen_size[1] /2) - 7, 2, 15, [color[0], color[1], color[2], 255]);     
+                                    Render.FilledRect((screen_size[0] /2) + 27, (screen_size[1] /2) - 7, 2, 15, [arrown[0], arrown[1], arrown[2], arrown[3]]);     
                                     }
                                     else if(isInverter == 0)
                                     {
                                     Render.FilledRect((screen_size[0] /2) + 27, (screen_size[1] /2) - 7, 2, 15, [color[0], color[1], color[2], 255]);       
+                                    Render.FilledRect((screen_size[0] /2) - 29, (screen_size[1] /2) - 7, 2, 15, [arrown[0], arrown[1], arrown[2], arrown[3]]);     
                                     }
                                 }
                                     if (isDesyncMode == 1){
@@ -166,21 +171,6 @@ function GetVelocity()
 {
     var velocity = Entity.GetProp(Entity.GetLocalPlayer(), "CBasePlayer", "m_vecVelocity[0]");
     return Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
-}
-
-function fakelags()
-{
-    if(UI.GetValue("Script items", "Off fakelags onstand"))
-    {
-        if(GetVelocity(Entity.GetLocalPlayer()) <= 3)
-        {
-            UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", 0);
-        }
-        else
-        {
-            UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", 6);
-        }
-    }
 }
 
 function draw() 
@@ -343,20 +333,6 @@ function safeAWP() {
 	} else if (safePBackup) {
 		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
 		safePBackup = false
-	}
-}
-
-function peekBAIM() {
-
-	if (UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")) {
-		forceBaim = UI.IsHotkeyActive('Rage', 'GENERAL', 'General', 'Force body aim')
-		if (!forceBaim) {
-			UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force body aim')
-			baimBackup = true
-		}
-	} else if (baimBackup) {
-		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force body aim')
-		baimBackup = false
 	}
 }
 
@@ -998,7 +974,7 @@ function indication() {
    isForceBody = UI.IsHotkeyActive("Rage", "General", "Force body aim")
    isFakeDuck = UI.IsHotkeyActive("Anti-Aim", "Extra", "Fake duck") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
    isAutoPick = UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")
-   isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 3 ? true : false )
+   isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 0 ? true : false )
    isFS = UI.IsHotkeyActive("Script items", "Freestanding")
    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    add_y = 40
@@ -1046,18 +1022,18 @@ function indication() {
     if(alpha_BAIM < 0.01) alpha_BAIM = 0
     if(add_BAIM < 0.01)   add_BAIM   = 0
    //Legit AA animation
-   if (isLegitAA && alpha_legit != 1 && alpha_main == 255){
-      value_legit = clamp(value_legit + fade_factor, 0, 1)
-      alpha_legit = clamp(alpha_legit+ fade_factor * value_legit, 0, 1)
-      add_legit = clamp(add_legit + fade_factor * value_legit, 0, 1)
-   }
-   if (!isLegitAA && alpha_legit != 0 || alpha_main != 255){
-      value_legit = clamp(value_legit - fade_factor, 0, 1)
-      alpha_legit = clamp(alpha_legit - fade_factor * alpha_legit, 0, 1)
-      add_legit = clamp(add_legit - fade_factor * add_legit , 0, 1)
-   }
-   if(alpha_legit < 0.01) alpha_legit = 0
-   if(add_legit < 0.01)   add_legit   = 0
+//   if (isLegitAA && alpha_legit != 1 && alpha_main == 255){
+//      value_legit = clamp(value_legit + fade_factor, 0, 1)
+//      alpha_legit = clamp(alpha_legit+ fade_factor * value_legit, 0, 1)
+//      add_legit = clamp(add_legit + fade_factor * value_legit, 0, 1)
+//   }
+//   if (!isLegitAA && alpha_legit != 0 || alpha_main != 255){
+//      value_legit = clamp(value_legit - fade_factor, 0, 1)
+//      alpha_legit = clamp(alpha_legit - fade_factor * alpha_legit, 0, 1)
+//      add_legit = clamp(add_legit - fade_factor * add_legit , 0, 1)
+//   }
+//   if(alpha_legit < 0.01) alpha_legit = 0
+//   if(add_legit < 0.01)   add_legit   = 0
    //Auto Peek animation
    if (isAutoPick && alpha_autopeek != 1 && alpha_main == 255){
       value_autopeek = clamp(value_autopeek + fade_factor, 0, 1)
@@ -1200,30 +1176,28 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "IDEAL YAW", [0, 0, 0, alpha_main], 3);
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "IDEAL YAW", [105, 126, 203, alpha_main], 3);
+    } else if (isLegitAA)  {
+       add_y = add_y + add_factor
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "LEGIT", [0, 0, 0, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LEGIT", [105, 126, 203, alpha_main], 3);
     } else {
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "STATIC", [0, 0, 0, alpha_main], 3);
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [105, 126, 203, alpha_main], 3);
     }
    
-
-   
-
-   
-   
-
    if (isFakeDuck || alpha_duck_anim > 0 && alpha_main > 50) {
       add_y = add_y + add_duck * add_factor;
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DUCK", [0, 0, 0, alpha_duck_anim], 3);
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DUCK", [158, 181, 113, alpha_duck_anim], 3);
    }
 
-//  if (alpha_autopeek > 0) {
-//      add_y = add_y + add_autopeek * add_factor ;
-//   
-//      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
-//      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
-//   }
+  if (alpha_autopeek > 0) {
+      add_y = add_y + add_autopeek * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
+   }
    if (alpha_FS > 0) {
       add_y = add_y + add_FS * add_factor ;
    
@@ -1242,30 +1216,12 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DMG", [0, 0, 0, alpha_damage * 255], 3);
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DMG", [158, 181, 113, alpha_damage * 255], 3);
     }
-//    if (alpha_BAIM > 0) {
-//       add_y = add_y + add_BAIM * add_factor;
-//   
-//       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
-//       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
-//    }
-
-
-    if (alpha_BAIM > 0 && alpha_autopeek > 0) {
-       add_y = add_y + add_BAIM * add_factor;
-   
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BPEEK", [0, 0, 0, alpha_BAIM * 255], 3);
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BPEEK", [73, 71, 166, alpha_BAIM * 255], 3);
-    } else if (alpha_BAIM > 0) {
+    if (alpha_BAIM > 0) {
        add_y = add_y + add_BAIM * add_factor;
    
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
-    } else if (alpha_autopeek > 0) {
-      add_y = add_y + add_autopeek * add_factor ;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
-   }
+    }
 
    if (alpha_legit > 0) {
       add_y = add_y + add_legit * add_factor;
@@ -1370,21 +1326,80 @@ function delta() {
 
 function anim()
 {
-    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Animfucker"))
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "legfucker"))
     {
         clock = clock + 0.5
         if (clock > 1)
         {
-            if (UI.GetValue("Misc", "GENERAL", "Movement", "Slide walk"))
+            if (UI.GetValue("Misc", "GENERAL", "Movement", "Slide walk") && UI.GetValue("Anti-Aim", "Extra", "Jitter move"))
             {
                 UI.SetValue("Misc", "GENERAL", "Movement", "Slide walk", 0);
+                UI.SetValue("Anti-Aim", "Extra", "Jitter move", 0);
                 clock = 0
             }
             else
             {
                 UI.SetValue("Misc", "GENERAL", "Movement", "Slide walk", 1);
+                UI.SetValue("Anti-Aim", "Extra", "Jitter move", 1);
                 clock = 0
             }
+        }
+    }
+}
+
+var delay = 3
+
+function fakelags()
+{
+    var send = UI.GetValue("Script items", "Send Limit")
+    var choke = UI.GetValue("Script items", "Choke Limit")
+    if(tickcount >= choke && !flip)
+    {
+        flip = true
+        tickcount = 0
+    }
+    if(tickcount >= send && flip)
+    {
+        flip = false
+        tickcount = 0
+    }
+    UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", !flip ? choke : 0)
+    tickcount++
+}
+function roundstart()
+{
+    tickcount = 0
+}
+
+function legit_aa()
+{
+    if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Legit AA Key"))
+    {
+        if (original_aa)
+        {
+            restrictions_cache = UI.GetValue("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions");
+            hiderealangle_cache = UI.GetValue ("Anti-Aim", "Fake angles", "Hide real angle");
+            yaw_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset");
+            jitter_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset");
+            pitch_cache = UI.GetValue ("Anti-Aim", "Extra", "Pitch");
+            original_aa = false;
+        }
+        UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", 0);
+        UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", true);
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", 180);
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset", 0);
+        UI.SetValue ("Anti-Aim", "Extra", "Pitch", 0);
+    }
+    else
+    {
+        if (!original_aa)
+        {
+            UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", restrictions_cache);
+            UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", hiderealangle_cache);
+            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", yaw_offset_cache);
+            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset", jitter_offset_cache);
+            UI.SetValue ("Anti-Aim", "Extra", "Pitch", pitch_cache);
+            original_aa = true;
         }
     }
 }
@@ -1392,23 +1407,23 @@ function anim()
 function Main()
 {
                   UI.AddLabel("-----------Arrows ind-----------")
-	          UI.AddColorPicker( "Arrows color" )
-	          UI.AddColorPicker( "Selected arrow color" )
-	          UI.AddColorPicker( "Selected inverter color" )
+	UI.AddColorPicker( "Arrows color" )
+	UI.AddColorPicker( "Selected arrow color" )
+	UI.AddColorPicker( "Selected inverter color" )
                   UI.AddCheckbox( "Display indicators")
-	          UI.AddCheckbox( "Display arrows")
+	UI.AddCheckbox( "Display arrows")
                   UI.AddHotkey("Left")
                   UI.AddHotkey("Right")
                   UI.AddLabel("----------Aspect Ratio----------")
                   UI.AddSliderInt( "Aspect ratio", 0, 500 );
                   UI.AddLabel("------------Anti-Aim------------")
-                  UI.AddCheckbox("Off fakelags onstand")
                   UI.AddHotkey( "Freestanding" ); 
-                  UI.AddCheckbox("Animfucker");    
+                  UI.AddCheckbox("legfucker");    
                   UI.AddCheckbox("Low delta");
                   UI.AddDropdown( "Low delta type", [ "Custom", "On key" ] );
                   UI.AddHotkey("Low delta on key");
-                  UI.AddHotkey("Invertor Key");         
+                  UI.AddHotkey("Invertor Key");  
+                  UI.AddHotkey("Legit AA Key");       
                   UI.AddLabel("----------Min-Damage---------")
                   UI.AddHotkey("Weapon Override")
                   UI.AddSliderInt("Weapon Mindmg", 0, 130)
@@ -1422,33 +1437,37 @@ function Main()
                   UI.AddCheckbox( "Enable chat logging" );
                   UI.AddLabel("----------Third-Person----------")
                   UI.AddSliderFloat("TP Dist", 50, 300)
+                  UI.AddLabel("------------Fake-Lag------------")
+                  UI.AddSliderInt("Send Limit", 0, 16)
+                  UI.AddSliderInt("Choke Limit", 0, 16)
 	
 	//  callbacks
-	          Global.RegisterCallback("Draw", "drawind")
-	          Global.RegisterCallback("CreateMove", "ManualAA")
-	          Global.RegisterCallback("player_connect_full", "player_connect")
+	Global.RegisterCallback("Draw", "drawind")
+	Global.RegisterCallback("CreateMove", "ManualAA")
+	Global.RegisterCallback("player_connect_full", "player_connect")
                   Global.RegisterCallback("Draw", "draw")
                   Global.RegisterCallback( "FrameStageNotify", "fsn" )
                   Global.RegisterCallback("Draw","autoscope")
                   Global.RegisterCallback("CreateMove", "freestanding")
                   Global.RegisterCallback('Draw', 'safeAWP')
-                  Global.RegisterCallback('Draw', 'peekBAIM')
                   Global.RegisterCallback("Draw", "drawscope")
-	          Global.RegisterCallback("ragebot_fire", "ragebot_fire");
-	          Global.RegisterCallback("item_purchase", "item_purchase");
+	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
+	Global.RegisterCallback("item_purchase", "item_purchase");
                   Global.RegisterCallback("player_hurt", "hitlog");
-	          Global.RegisterCallback("Draw", "onDraw");
-	          Global.RegisterCallback("Draw", "removelogs");
+	Global.RegisterCallback("Draw", "onDraw");
+	Global.RegisterCallback("Draw", "removelogs");
                   Global.RegisterCallback("FrameStageNotify", "ragdollForce");
                   Global.RegisterCallback("Draw", "drawString");
                   Global.RegisterCallback("Draw", "SetEnabled");
                   Global.RegisterCallback("CreateMove", "onCM")
                   Global.RegisterCallback("CreateMove", "Low_delta");
                   Global.RegisterCallback("FrameStageNotify", "ChangeDist");
-	          Global.RegisterCallback("Draw", "indication")
+	Global.RegisterCallback("Draw", "indication")
                   Global.RegisterCallback("Draw", "delta");
                   Global.RegisterCallback("CreateMove", "anim");
                   Global.RegisterCallback("CreateMove", "fakelags");
+                  Global.RegisterCallback("round_start", "roundstart")
+                  Global.RegisterCallback("CreateMove", "legit_aa");
 
 }
 Main();
