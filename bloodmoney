@@ -21,6 +21,27 @@ var tickcount = 0
 var original_aa = true;
 var flip = false
 
+Cheat.PrintColor([158,179,255,255],"██████╗░██╗░░░░░░█████╗░░█████╗░██████╗░████████╗███████╗░█████╗░██╗░░██╗" + '\n')
+Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██║░░██║" + '\n')
+Cheat.PrintColor([158,179,255,255],"██████╦╝██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░█████╗░░██║░░╚═╝███████║" + '\n')
+Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░██╔══╝░░██║░░██╗██╔══██║" + '\n')
+Cheat.PrintColor([158,179,255,255],"██████╦╝███████╗╚█████╔╝╚█████╔╝██████╔╝░░░██║░░░███████╗╚█████╔╝██║░░██║" + '\n')
+Cheat.PrintColor([158,179,255,255],"╚═════╝░╚══════╝░╚════╝░░╚════╝░╚═════╝░░░░╚═╝░░░╚══════╝░╚════╝░╚═╝░░╚═╝ v. 1.0.5" + '\n')
+username = Cheat.GetUsername();
+Cheat.PrintColor([145,197,56,255], "Welocome, " + username + "!" + '\n');
+Cheat.Print('\n')
+Cheat.PrintColor([145,197,56,255], "[CURRENT UPDATES]" + '\n')
+Cheat.PrintColor([158,179,255,255], "- Add pingspike on key" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Release yougame page of script" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Add more acidtech-like indicators" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Change indicators color" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Minor checkboxes & other update" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Remove useless low delta drawstring" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Fix checkbox for arrows/indicators/desync line from not disabling" +'\n')
+Cheat.PrintColor([158,179,255,255], "- Added jumpscout & jumpr8" +'\n')
+
+UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Hidden cvars", true)
+
 function isDoubleTapActive()
 {
 	var isCheckboxActive = UI.GetValue("Rage", "Exploits", "Doubletap");
@@ -173,9 +194,17 @@ function GetVelocity()
     return Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
 }
 
+function isHActive() {
+    var isCheckboxActive1 = UI.GetValue("Rage", "Exploits", "Hide shots");
+    var isKeyActive1 = UI.IsHotkeyActive("Rage", "Exploits", "Hide shots");
+
+    return isCheckboxActive1 && isKeyActive1;
+}
+
 function draw() 
 {
-	var ping = Math.round(Local.Latency() * 1000 - 16)
+	var ping = Math.round(Entity.GetProp(Entity.GetLocalPlayer(), "CPlayerResource", "m_iPing")).toString()
+	var ping2 = Math.floor(Local.Latency()*1000/19.5);
     var today = new Date();
     var hours1 = today.getHours();
     var minutes1 = today.getMinutes();
@@ -183,12 +212,10 @@ function draw()
     var hours = hours1 <= 9 ? "0" + today.getHours() + ":" : today.getHours() + ":";
     var minutes = minutes1 <= 9 ? "0" + today.getMinutes() + ":" : today.getMinutes() + ":";
     var seconds = seconds1 <= 9 ? "0" + today.getSeconds() : today.getSeconds()    ;
-    const alpha = Math.sin(Math.abs(-Math.PI + (Globals.Curtime() * (1 / .75)) % (Math.PI * 2))) * 255;
 	var screen_size = Render.GetScreenSize()
-	var font2 = Render.AddFont( "Small fonts", 7, 700);
-	var font3 = Render.AddFont( "Small fonts", 14, 500);
+	var font2 = Render.AddFont( "Small Fonts", 7, 0);
 	var local = Entity.GetLocalPlayer();
-    var text = "latency: " + (ping * 1) + "ms " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds ;   
+    var text  = "latency: " + (ping * 1) + "ms " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds ;
     var fps = Math.floor(1 / Global.Frametime());
 	
 	g_Local_weapon = Entity.GetWeapon(local);
@@ -205,93 +232,160 @@ function draw()
 	var y3 = screen_size[1] - 110;		   
 	
 	var y4 = screen_size[1] - 125;	
-	   
-	   if(!Entity.IsAlive(local))
+    var alpha_1 = Math.sin(Math.abs(-Math.PI + (Globals.Curtime() * (1 / .75)) % (Math.PI * 2))) * 255;	   
+	var alpha_2 = Math.sin(Globals.Curtime() * 2.5) * 55 + 200;	
+	var alpha_3 = Math.sin(Globals.Curtime() * 4) * 55 + 200;		
+	
+	if(!Entity.IsAlive(local))
         return;
-//!!!!!!!!
 
-	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 92, 0, "!", [0,0,0,255], font3 );    
-	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 94, 0, "!", [0,0,0,255], font3 );    
-	Render.StringCustom(screen_size[0] / 2 - 17, screen_size[1] - 93, 0, "!", [0,0,0,255], font3 );    
-	Render.StringCustom(screen_size[0] / 2 - 15, screen_size[1] - 93, 0, "!", [0,0,0,255], font3 );               
-	Render.StringCustom(screen_size[0] / 2 - 16, screen_size[1] - 93, 0, "!", [255,255,255,255], font3 );               
-//top
-	Render.Line( screen_size[0] / 2 - 17, screen_size[1] - 96, screen_size[0] / 2 - 11, screen_size[1] - 96, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 17, screen_size[1] - 95, screen_size[0] / 2 - 11, screen_size[1] - 95, [ 255, 255, 255, 195 ] );
 
-	Render.Line( screen_size[0] / 2 - 18, screen_size[1] - 95, screen_size[0] / 2 - 10, screen_size[1] - 95, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 18, screen_size[1] - 94, screen_size[0] / 2 - 10, screen_size[1] - 94, [ 255, 255, 255, 195 ] );
-//бока
-	Render.Line( screen_size[0] / 2 - 19, screen_size[1] - 93, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 19, screen_size[1] - 93, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 9, screen_size[1] - 93, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );	
-	Render.Line( screen_size[0] / 2 - 9, screen_size[1] - 93, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+var trWidth = 17;
+var trHeight = 18;
+var LX = screen_size[0] / 2 - trWidth / 1 + 7;
+var RX = screen_size[0] / 2 + trWidth / 1 - 8;
+var UY = screen_size[1] - 103 - trHeight ;
+var DY = screen_size[1] - 103;
+var fontSize = 10;
+var font3 = Render.AddFont( "Verdana", fontSize, 0); 
+var font4 = Render.AddFont( "Verdana", 7, 0); 
+
+var signColor = [ 255, 207, 48, 255 ];
+var shadowColor = [ 194, 159, 47, 255 ];
+var green = [36, 240, 80,255];
+var red = [250, 42, 42, 255];
+var redsafe = [250, 42, 42, 255];
+
+
+	if (ping > 69)
+	
+	
+	{
+	Render.StringCustom(screen_size[0] / 3 - -317, UY + 3, 0, "!", [64, 50, 15, 200], font3 );               
+	Render.StringCustom(screen_size[0] / 3 - -318, UY + 3, 0, "!", ping < 69 ? signColor : [red[0],red[1],red[2],alpha_3 ], font3 );  	
+	}
+	else
+	{	
+	Render.StringCustom(screen_size[0] / 3 - -317, UY + 3, 0, "!", [64, 50, 15, 200], font3 );               
+	Render.StringCustom(screen_size[0] / 3 - -318 * 1.0031, UY + 3, 0, "!", signColor, font3 );               
+	}
+
+
+	if (ping > 69)
+	{
 //низ
-	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 72, screen_size[0] / 2 - 5, screen_size[1] - 72, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 5, screen_size[1] - 71, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 70, screen_size[0] / 2 - 5, screen_size[1] - 70, [ 255, 255, 255, 195 ] );
-//низ право
-	Render.Line( screen_size[0] / 2 - 5, screen_size[1] - 71, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
-	Render.Line( screen_size[0] / 2 - 5, screen_size[1] - 71, screen_size[0] / 2 - 2, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
-//низ лев
-	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 165 ] );
-	Render.Line( screen_size[0] / 2 - 23, screen_size[1] - 71, screen_size[0] / 2 - 26, screen_size[1] - 75, [ 255, 255, 255, 195 ] );
+	Render.Line( LX, DY, RX, DY, ping < 69 ? signColor : [red[0],red[1],red[2],alpha_3 ]);
+
+
 	
+//бок левый
+	Render.Line( screen_size[0] / 2, UY , LX , DY, ping < 69 ? signColor : [red[0],red[1],red[2],alpha_3 ] );
+
 	
-//text	
-	Render.StringCustom(screen_size[0] / 2 - 101 , screen_size[1] - 80, 0, "bloodmoney", [0,0,0,alpha], font2 );    
-	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 81, 0, "bloodmoney", [255,255,255,alpha], font2 );
-
-	Render.StringCustom(screen_size[0] / 2 + 4 , screen_size[1] - 80, 0, "choke: 0%", [0,0,0,255], font2 );    
-	Render.StringCustom(screen_size[0] / 2 + 5, screen_size[1] - 81, 0, "choke: 0%", [255,255,255,255], font2 );	
-
-	Render.StringCustom(screen_size[0] / 2 + 4, screen_size[1] - 66, 0, "loss: 0% (+- 0.5)", [0,0,0,255], font2 );    
-	Render.StringCustom(screen_size[0] / 2 + 5, screen_size[1] - 67, 0, "loss: 0% (+- 0.5)", [255,255,255,255], font2 );	
-	
-	Render.StringCustom(screen_size[0] / 2 - 101 , screen_size[1] - 51, 0, "velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds, [0,0,0,255], font2 );    
-	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 52, 0, "velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " + " ticks: " + Globals.Tickrate().toString() + "  time: " + hours + minutes + seconds, [255,255,255,255], font2 );
-
-	Render.StringCustom(screen_size[0] / 2 - 101, screen_size[1] - 66, 0, "ping: " + (ping * 1), [0,0,0,255], font2 );    
-	Render.StringCustom(screen_size[0] / 2 - 100, screen_size[1] - 67, 0, "ping: " + (ping * 1), [255,255,255,255], font2);
-
-	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 66, 0, "fps: " + fps , [0,0,0,255], font2 );    
-	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 67, 0, "fps: " + fps, [255,255,255,255], font2);
-//LG
-	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 21, 0, "lagcomp: ", [0,0,0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 22, 0, "lagcomp: ", [255,255,255,255], font2 );
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == false)
-	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "unsafe", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "unsafe", [250, 42, 42,255], font2 );
+//бок правый
+	Render.Line( screen_size[0] / 2, UY , RX, DY, ping < 69 ? signColor : [red[0],red[1],red[2],alpha_3 ] );
 	}
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == true)
-	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "broken", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "broken", [42, 250, 87,255], font2 );
-	}	
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") == true)
-	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 21, 0, "broken", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 22, 0, "broken", [42, 250, 87,255], font2 );
-	}	
-//DT
-	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 31, 0, "   exploit: ", [0,0,0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 32, 0, "   exploit: ", [255,255,255,255], font2 );
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == false)
-	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "not ready", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "not ready", [250, 42, 42,255], font2 );
+	else
+	{
+//низ
+	Render.Line( LX, DY, RX, DY, signColor);
+	
+	
+//бок левый
+	Render.Line( screen_size[0] / 2, UY , LX , DY, signColor);
+
+
+
+	Render.Line( screen_size[0] / 2, UY - -0, LX - -0, DY - 1, shadowColor);
+
+
+	
+//бок правый
+	Render.Line( screen_size[0] / 2, UY , RX, DY, signColor);
+
+
+
+	Render.Line( screen_size[0] / 2 + -0, UY - 1, RX + 0, DY - 1, shadowColor);
+
+
 	}
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == true)
+
+//текст графа
+var lp = Entity.GetLocalPlayer();
+	var velocity = Math.round(GetVelocity(lp));	
+
+	{
+	if (ping < 69)
+	{
+	Render.StringCustom(screen_size[0] / 2 - 75, screen_size[1] - 112, 0, "clock syncing", [0,0,0,alpha_3], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 74, screen_size[1] - 113, 0, "clock syncing", [255,255,255,alpha_3 ], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 18, screen_size[1] - 112, 0, "+-" + ping2 / 1  +"."+ ping2 * 3/1+"ms", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 17, screen_size[1] - 113, 0, "+-" + ping2 / 1  +"."+ ping2 * 3/1+"ms", [255,255,255,255 ], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 75, screen_size[1] - 92, 0, "loss:(+-"+ ping2 / 5+")  ", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 74, screen_size[1] - 93, 0, "loss:(+-"+ ping2 / 5+")  ", [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 - 18, screen_size[1] - 92, 0, "ping: " + "          fps:", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 19, screen_size[1] - 93, 0, "ping: " + "          fps:", [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 + 30, screen_size[1] - 92, 0, "    " + fps, [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 31, screen_size[1] - 93, 0, "    " + fps, [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 - 75, screen_size[1] - 71, 0, "time: " + hours + minutes + seconds + "   ticks: " + Globals.Tickrate().toString() + "   velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " , [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 74, screen_size[1] - 72, 0, "time: " + hours + minutes + seconds + "   ticks: " + Globals.Tickrate().toString() + "   velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s ", [255,255,255,255], font2 );
+// fps < 60 ? [red[0],red[1],red[2],alpha_3 ] : 	
+	
+	Render.StringCustom(screen_size[0] / 2 + 0, screen_size[1] - 92, 0, " " + ping, [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 1, screen_size[1] - 93, 0, " " + ping, ping > 60 ? [255, 125, 95, 255 ] : [255,255,255,255], font2);
+	}
+	else
 	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "ready", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "ready", [42, 250, 87,255], font2 );
-	}	
-	if (UI.IsHotkeyActive("Rage", "Exploits", "Doubletap") == true)
-	{	
-	Render.StringCustom(screen_size[0] / 2 +3, screen_size[1] - 31, 0, "ready", [0, 0, 0,255], font2 );
-	Render.StringCustom(screen_size[0] / 2 +2, screen_size[1] - 32, 0, "ready", [42, 250, 87,255], font2 );
-	}	
+	Render.StringCustom(screen_size[0] / 2 - 80, screen_size[1] - 112, 0, "lost connection ", [0,0,0,alpha_3], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 79, screen_size[1] - 113, 0, "lost connection ", [255,255,255,alpha_3 ], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 18, screen_size[1] - 112, 0, "+-" + ping2 / 1  +"."+ ping2 * 3/1+"ms", [0,0,0,alpha_3], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 17, screen_size[1] - 113, 0, "+-" + ping2 / 1  +"."+ ping2 * 3/1+"ms", [255,255,255,alpha_3 ], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 56, screen_size[1] - 92, 0, "(+-"+ ping2 / 4+")  ", [0,0,0,255], font2 );  
+	Render.StringCustom(screen_size[0] / 2 - 80, screen_size[1] - 92, 0, "loss:", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 79, screen_size[1] - 93, 0, "loss:", [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 - 61, screen_size[1] - 93, 0, "  (+-"+ ping2 / 4+")  ", [255, 82, 62, 255], font2);
+	Render.StringCustom(screen_size[0] / 2 - 25, screen_size[1] - 92, 0, "ping: " + "          fps:", [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 25, screen_size[1] - 93, 0, "ping: " + "          fps:", [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 + 27, screen_size[1] - 92, 0, "    " + fps, [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + 26, screen_size[1] - 93, 0, "    " + fps,[255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 + -6, screen_size[1] - 92, 0, " " + ping, [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 + -7, screen_size[1] - 93, 0, " " + ping, ping > 60 ? [255, 125, 95, 255 ] : [255,255,255,255], font2);
+	Render.StringCustom(screen_size[0] / 2 - 79, screen_size[1] - 71, 0, "time: " + hours + minutes + seconds + "   ticks: " + Globals.Tickrate().toString() + "   velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s " , [0,0,0,255], font2 );    
+	Render.StringCustom(screen_size[0] / 2 - 78, screen_size[1] - 72, 0, "time: " + hours + minutes + seconds + "   ticks: " + Globals.Tickrate().toString() + "   velocity: " + (GetVelocity().toFixed(0)).toString() + " u/s ", [255,255,255,255], font2 );
+	}
+}
+
+	
+	
+	
+	Render.StringCustom(screen_size[0] / 2 - 48, screen_size[1] - 31, 0, "        exploit: ", [0,0,0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 47, screen_size[1] - 32, 0, "        exploit: ", [255,255,255,255], font2 );
+                  Render.StringCustom(screen_size[0] / 2 - 40, screen_size[1] - 21, 0, "lagcomp: ", [0,0,0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 - 39, screen_size[1] - 22, 0, "lagcomp: ", [255,255,255,255], font2 );
+
+	
+
+	
+	if (isHActive() == 1) 
+	{
+	Render.StringCustom(screen_size[0] / 2 + 3, screen_size[1] - 21, 0, "broken", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 22, 0, "broken", green, font2 );
+	}
+	if (isHActive() == 0)
+	{
+	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 21, 0, "unsafe", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 22, 0, "unsafe", red, font2 );
+	}
+	if (isDoubleTapActive() == 1)
+	{
+	Render.StringCustom(screen_size[0] / 2 + 3, screen_size[1] - 31, 0, "shifting", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 32, 0, "shifting", green, font2 );
+                  }
+	if (isDoubleTapActive() == 0)
+	{
+	Render.StringCustom(screen_size[0] / 2 + 3, screen_size[1] - 31, 0, "disabled", [0, 0, 0,255], font2 );
+	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 32, 0, "disabled", red, font2 );
+    }
 }
 
 function fsn( ) {
@@ -313,17 +407,21 @@ function autoscope()
     localplayer_weapon = Entity.GetWeapon(localplayer_index)
     weapon_name = Entity.GetName(localplayer_weapon)
 
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Scope on scar")) {
     if (weapon_name == "scar 20" ||  weapon_name == "g3sg1")
         UI.SetValue( "Rage", "GENERAL", "General", "Auto scope", false )
     else
         UI.SetValue ("Rage", "GENERAL", "General", "Auto scope", true)
 }
+}
+
 
 function safeAWP() {
     SlocalPlayer = Entity.GetLocalPlayer()
 	SlocalPlayerWeapon = Entity.GetWeapon(SlocalPlayer)
 	SlocalPlayerWeaponName = Entity.GetName(SlocalPlayerWeapon)
 
+                  if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Safe AWP")) {
 	if (SlocalPlayerWeaponName == 'awp' ) {
 		forceSafePoint = UI.IsHotkeyActive('Rage', 'GENERAL', 'General', 'Force safe point')
 		if (!forceSafePoint) {
@@ -334,6 +432,7 @@ function safeAWP() {
 		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
 		safePBackup = false
 	}
+}
 }
 
 function freestanding()
@@ -350,6 +449,21 @@ function freestanding()
     }
 }
 
+
+function pingspike()
+{
+    if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "pingspike"))
+    {
+        UI.SetValue ("Misc", "GENERAL", "Miscellaneous", "Extended backtracking", true);
+    }
+    else
+    {
+        {
+        UI.SetValue ("Misc", "GENERAL", "Miscellaneous", "Extended backtracking", false);
+        }
+    }
+}
+
 function drawscope() {
     var dist = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Distance from crosshair");
     var size = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Size of lines");
@@ -359,7 +473,8 @@ function drawscope() {
     SlocalPlayer = Entity.GetLocalPlayer()
     SlocalPlayerWeapon = Entity.GetWeapon(SlocalPlayer)
     SlocalPlayerWeaponName = Entity.GetName(SlocalPlayerWeapon)
-
+if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Draw scope"))
+{
     if ( is_scope && (SlocalPlayerWeaponName == 'awp' || SlocalPlayerWeaponName == "ssg 08" || SlocalPlayerWeaponName == "scar 20" || SlocalPlayerWeaponName == "g3sg1")) {
             var screen_size = Global.GetScreenSize();
             x = screen_size[0] / 2;
@@ -370,26 +485,14 @@ function drawscope() {
         Render.GradientRect ( x - dist  - size, y, size, 1, 1, [ 55, 59,  68,  0 ], color );
         Render.GradientRect ( x, y - dist - size, 1, size, 0, [ 55, 59,  68,  0 ], color );
 
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display indicators", false)
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display arrows", false)
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Indicator", false)
-		Convar.SetFloat("cl_draw_only_deathnotices", 1)
 		Convar.SetFloat("r_drawvgui", 0)
         }
         else
         {
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display indicators", true)
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Display arrows", true)
-        UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Indicator", true)
-		Convar.SetFloat("cl_draw_only_deathnotices", 0)
 		Convar.SetFloat("r_drawvgui", 1)
         }
     }
-
-// && (SlocalPlayerWeaponName == 'awp' || SlocalPlayerWeaponName == "ssg 08")
-//        Cheat.ExecuteCommand("cl_draw_only_deathnotices 1")
-//        Convar.SetFloat("r_drawvgui", 0);
-//        UI.SetValue("Visual", "WORLD", "Entities", "Removals", 59);
+}
 
 hitboxes = [
     'generic',
@@ -542,10 +645,10 @@ function hitlog() {
       hittype = "Knifed ";
 
     if (me == attackerIndex && me != victimIndex) {
-		Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+		Cheat.PrintColor([158, 179, 255, 255], "[bloodtech] ");
     if (hittype == "Hit ") {
         if (UI.GetValue("Script items", "Enable chat logging")) {
-            Cheat.PrintChat(" \x08[\x0conetap\x08] [\x0c"+shots.toString()+"\x08] "+hittype+name+"'s \x10"+HitgroupName(hitbox)+"\x08 for \x07"+target_damage.toString()+"\x08 ("+target_health.toString()+" remaining) aimed=\x10"+hitboxName+"\x08("+predicthc.toString()+"%%) safety=\x03"+safety+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)\n");
+            Cheat.PrintChat(" \x08[\x0cbloodtech\x08] [\x0c"+shots.toString()+"\x08] "+hittype+name+"'s \x10"+HitgroupName(hitbox)+"\x08 for \x07"+target_damage.toString()+"\x08 ("+target_health.toString()+" remaining) aimed=\x10"+hitboxName+"\x08("+predicthc.toString()+"%%) safety=\x03"+safety+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)\n");
         }
       Cheat.Print("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining) aimed="+hitboxName+"("+predicthc.toString()+"%%) bt=0 ("+flags+") ("+simtime+":"+exploit+")\n");
   		logs.push("["+shots.toString()+"] "+hittype+name+"'s "+HitgroupName(hitbox)+" for "+target_damage.toString()+" ("+target_health.toString()+" remaining) aimed="+hitboxName+"("+predicthc.toString()+"%%) bt=0 ("+flags+") ("+simtime+":"+exploit+")");
@@ -584,7 +687,7 @@ function removelogs() {
 }
 
 function item_purchase() {
-	Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+	Cheat.PrintColor([158, 179, 255, 255], "[bloodtech] ");
 	Cheat.Print(Entity.GetName(Entity.GetEntityFromUserID(Event.GetInt("userid")))+" bought "+Event.GetString("weapon")+"\n");
 	logs.push(Entity.GetName(Entity.GetEntityFromUserID(Event.GetInt("userid")))+" bought "+Event.GetString("weapon")+"");
 	logsct.push(Globals.Curtime());
@@ -631,12 +734,12 @@ function onDraw() {
 
           flags += "B";
 
-        Cheat.PrintColor([89, 119, 239, 255], "[onetap] ");
+        Cheat.PrintColor([158, 179, 255, 255], "[bloodtech] ");
         Cheat.Print("["+shots.toString()+"] "+"Missed "+Entity.GetName(target)+"'s "+hitboxName+"("+predicthc.toString()+"%%) due to "+reason+", bt=0 ("+flags+") ("+simtime+":"+exploit+")\n");
             logs.push("["+shots.toString()+"] "+"Missed "+Entity.GetName(target)+"'s "+hitboxName+"("+predicthc.toString()+"%%) due to "+reason+", bt=0 ("+flags+") ("+simtime+":"+exploit+")");
 
             if (UI.GetValue("Script items", "Enable chat logging")) {
-                Cheat.PrintChat(" \x08[\x0conetap\x08] [\x0c"+shots.toString()+"\x08] "+"\x08Missed "+Entity.GetName(target)+"'s \x10"+hitboxName+"\x08("+predicthc.toString()+"%%) due to \x07"+reason+"\x08, safety=\x03"+issafe+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)");
+                Cheat.PrintChat(" \x08[\x0cbloodtech\x08] [\x0c"+shots.toString()+"\x08] "+"\x08Missed "+Entity.GetName(target)+"'s \x10"+hitboxName+"\x08("+predicthc.toString()+"%%) due to \x07"+reason+"\x08, safety=\x03"+issafe+"\x08 (\x10"+flags+"\x08) (\x10"+simtime+"\x08:\x10"+exploit+"\x08)");
             }
         logsct.push(Globals.Curtime());
     		logsalpha.push(255);
@@ -653,6 +756,8 @@ function ragdollForce( )
     UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Ragdoll Gravity", "1")
 
     framestage = Cheat.FrameStage();
+if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Ragdoll force"))
+   {
     if (framestage == 3)
     {   
         entities = Entity.GetEntities();
@@ -672,9 +777,9 @@ function ragdollForce( )
                 Entity.SetProp(entities[i], "CCSRagdoll", "m_vecRagdollVelocity", dir);
                 Entity.SetProp(entities[i], "CBaseAnimating", "m_vecForce", dir1);
             }
-        }
-        
-    }
+         }    
+	  }
+   }
 }
 
 function SetEnabled()
@@ -771,61 +876,6 @@ function Low_delta()
         {
             AntiAim.SetOverride(0);
         }
-}
-
-function drawString()
-{
-    localplayer_index = Entity.GetLocalPlayer( );
-    localplayer_alive = Entity.IsAlive( localplayer_index );
-    const fontpixel = Render.AddFont( "Verdana", 8, 100);
-    const lowdelta_dropdown_value = UI.GetValue.apply(null, lowdelta_modes);
-    var SFOnkey = false
-    var screen_size = Global.GetScreenSize();
-    var velocity = get_velocity(localplayer_index)
-    var health = get_health(localplayer_index)
-
-    SlowWalk = false
-    LowHP = false
-    Standing = false
-    Onkey = false
-
-    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
-    {
-       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
-       SlowWalk = true
-       else
-       SlowWalk = false
-
-       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
-       LowHP = true
-       else
-       LowHP = false
-
-       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
-       Standing = true
-       else
-       Standing = false
-    }
-    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
-    {
-       if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
-       Onkey = true
-       else
-       Onkey = false
-    }
-
-    if (Standing == true || LowHP == true || SlowWalk == true || Onkey == true)
-    {
-        drawIND = true
-    }
-    else
-    {
-        drawIND = false
-    }
-
-    if (drawIND == true && localplayer_alive == true && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") == true)
-    {
-    }
 }
 
 function isActive(a) {
@@ -947,6 +997,10 @@ value_hs = 0
 alpha_hs = 0
 add_hs   = 0
 
+value_ping = 0
+alpha_ping = 0
+add_ping   = 0
+
 value_arc = 0
 alpha_anim_state = false
 alpha_duck_state = false
@@ -974,6 +1028,7 @@ function indication() {
    isForceBody = UI.IsHotkeyActive("Rage", "General", "Force body aim")
    isFakeDuck = UI.IsHotkeyActive("Anti-Aim", "Extra", "Fake duck") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
    isAutoPick = UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")
+   isPing = UI.IsHotkeyActive("Script items", "pingspike")
    isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 0 ? true : false )
    isFS = UI.IsHotkeyActive("Script items", "Freestanding")
    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1021,19 +1076,6 @@ function indication() {
     }
     if(alpha_BAIM < 0.01) alpha_BAIM = 0
     if(add_BAIM < 0.01)   add_BAIM   = 0
-   //Legit AA animation
-//   if (isLegitAA && alpha_legit != 1 && alpha_main == 255){
-//      value_legit = clamp(value_legit + fade_factor, 0, 1)
-//      alpha_legit = clamp(alpha_legit+ fade_factor * value_legit, 0, 1)
-//      add_legit = clamp(add_legit + fade_factor * value_legit, 0, 1)
-//   }
-//   if (!isLegitAA && alpha_legit != 0 || alpha_main != 255){
-//      value_legit = clamp(value_legit - fade_factor, 0, 1)
-//      alpha_legit = clamp(alpha_legit - fade_factor * alpha_legit, 0, 1)
-//      add_legit = clamp(add_legit - fade_factor * add_legit , 0, 1)
-//   }
-//   if(alpha_legit < 0.01) alpha_legit = 0
-//   if(add_legit < 0.01)   add_legit   = 0
    //Auto Peek animation
    if (isAutoPick && alpha_autopeek != 1 && alpha_main == 255){
       value_autopeek = clamp(value_autopeek + fade_factor, 0, 1)
@@ -1073,6 +1115,19 @@ function indication() {
    }
       if(alpha_SP < 0.01) alpha_SP = 0
       if(add_SP < 0.01)   add_SP   = 0
+   //Ping animation
+   if (isPing && alpha_ping != 1 && alpha_main == 255){
+      value_ping = clamp(value_ping + fade_factor, 0, 1)
+      alpha_ping = clamp(alpha_ping + fade_factor * value_ping, 0, 1)
+      add_ping   = clamp(add_ping   + fade_factor * value_ping, 0, 1)
+   }
+   if (!isPing && alpha_ping != 0 || alpha_main != 255){
+      value_ping = clamp(value_ping - fade_factor, 0, 1)
+      alpha_ping = clamp(alpha_ping - fade_factor * alpha_ping, 0, 1)
+      add_ping   = clamp(add_ping   - fade_factor * add_ping, 0, 1)
+   }
+      if(alpha_ping < 0.01) alpha_ping = 0
+      if(add_ping < 0.01)   add_ping   = 0
    //ANIM animation
     if (!isDoubletap && !isHideShot && alpha_main == 255) {
        add_anim = clamp(add_anim + fade_factor, 0, 1)
@@ -1157,17 +1212,17 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
    
    hs_color = [250,200,0,alpha_hs * 255]
 
-   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y + 1, 1, "BLOODMONEY", [0, 0, 0, alpha_main],3);
-   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y, 1, "BLOODMONEY", [105, 126, 203, alpha_main],3);
+   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y + 1, 1, "BLOODTECH", [0, 0, 0, alpha_main],3);
+   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y, 1, "BLOODTECH", [158,179,255, alpha_main],3);
 
    if(alpha_dt != 0){
-      add_y = add_y + add_dt * add_factor
+       add_y = add_y + add_dt * add_factor
    Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "DT", [0, 0, 0, dt_color[3]], 3);
    Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "DT", dt_color, 3);
    }
 
    if(alpha_hs != 0){
-      add_y = add_y + add_hs * add_factor
+       add_y = add_y + add_hs * add_factor
    Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "HIDE", [0, 0, 0, hs_color[3]], 3);
    Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "HIDE", hs_color, 3);
    }
@@ -1175,15 +1230,15 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
     if (islowdelta) {
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "IDEAL YAW", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "IDEAL YAW", [105, 126, 203, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "IDEAL YAW", [158,179,255, alpha_main], 3);
     } else if (isLegitAA)  {
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "LEGIT", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LEGIT", [105, 126, 203, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LEGIT", [158, 179,255, alpha_main], 3);
     } else {
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "STATIC", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [105, 126, 203, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [158,179,255, alpha_main], 3);
     }
    
    if (isFakeDuck || alpha_duck_anim > 0 && alpha_main > 50) {
@@ -1209,6 +1264,12 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
    
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "SAFE", [0, 0, 0, alpha_SP * 255], 3);
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "SAFE", [141, 140, 197, alpha_SP * 255], 3);
+   }
+   if (alpha_ping > 0) {
+      add_y = add_y + add_ping * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PING", [0, 0, 0, alpha_ping * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PING", [141, 140, 197, alpha_ping * 255], 3);
    }
     if (alpha_damage > 0) {
        add_y = add_y + add_damage * add_factor;
@@ -1310,11 +1371,11 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
 
 function delta() {
     local = Entity.GetLocalPlayer();
-    if (!UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Indicator") || !Entity.IsValid(local) || !Entity.IsAlive(local)) return;
+    if (!UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Desync line") || !Entity.IsValid(local) || !Entity.IsAlive(local)) return;
     font = Render.AddFont("Verdana", 8, 400);
     x = screen_size[0];
     y = screen_size[1];
-    coldelt = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Indicator color");
+    coldelt = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "line color");
     real_yaw = Local.GetRealYaw();
     fake_yaw = Local.GetFakeYaw();
     delta = Math.min(Math.abs(real_yaw - fake_yaw) / 2, 60).toFixed(0);
@@ -1353,6 +1414,8 @@ function fakelags()
 {
     var send = UI.GetValue("Script items", "Send Limit")
     var choke = UI.GetValue("Script items", "Choke Limit")
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "jitter fakelag"))
+	{
     if(tickcount >= choke && !flip)
     {
         flip = true
@@ -1365,7 +1428,9 @@ function fakelags()
     }
     UI.SetValue("Anti-Aim", "Fake-Lag", "Limit", !flip ? choke : 0)
     tickcount++
+   }
 }
+
 function roundstart()
 {
     tickcount = 0
@@ -1404,18 +1469,225 @@ function legit_aa()
     }
 }
 
+var lasttime = 0;
+function onRender( )
+{
+var tag = UI.GetValue("Clantag");
+var speed = 4.5;
+var time = parseInt((Globals.Curtime() * speed))
+if (time != lasttime)
+{
+if (tag == 1) {
+switch ((time) % 38) {
+
+case 1: { Local.SetClanTag(""); break; }
+case 2: { Local.SetClanTag("^"); break; }
+case 3: { Local.SetClanTag("B"); break; }
+case 4: { Local.SetClanTag("B$"); break; }
+case 5: { Local.SetClanTag("Bl"); break; }
+case 6: { Local.SetClanTag("Bl{}"); break; }
+case 7: { Local.SetClanTag("Blo"); break; }
+case 8: { Local.SetClanTag("Blo{}"); break; }
+case 9: { Local.SetClanTag("Bloo"); break; }
+case 10: { Local.SetClanTag("Bloo%"); break; }
+case 11: { Local.SetClanTag("Blood"); break; }
+case 12: { Local.SetClanTag("Blood_"); break; }
+case 13: { Local.SetClanTag("BloodT"); break; }
+case 14: { Local.SetClanTag("BloodT@"); break; }
+case 15: { Local.SetClanTag("BloodTe"); break; }
+case 16: { Local.SetClanTag("BloodTe("); break; }
+case 17: { Local.SetClanTag("BloodTec"); break; }
+case 18: { Local.SetClanTag("BloodTec|"); break; }
+case 19: { Local.SetClanTag("BloodTech"); break; }
+case 20: { Local.SetClanTag("BloodTech"); break; }
+case 21: { Local.SetClanTag("^loodTech"); break; }
+case 22: { Local.SetClanTag("loodTech"); break; }
+case 23: { Local.SetClanTag("$oodTech"); break; }
+case 24: { Local.SetClanTag("oodTech"); break; }
+case 25: { Local.SetClanTag("{}odTech"); break; }
+case 26: { Local.SetClanTag("odTech"); break; }
+case 27: { Local.SetClanTag("{}dTech"); break; }
+case 28: { Local.SetClanTag("dTech"); break; }
+case 29: { Local.SetClanTag("%Tech"); break; }
+case 30: { Local.SetClanTag("Tech"); break; }
+case 31: { Local.SetClanTag("_ech"); break; }
+case 32: { Local.SetClanTag("ech"); break; }
+case 33: { Local.SetClanTag("@ch"); break; }
+case 34: { Local.SetClanTag("ch"); break; }
+case 35: { Local.SetClanTag("(h"); break; }
+case 36: { Local.SetClanTag("h"); break; }
+case 37: { Local.SetClanTag("|"); break; }
+case 38: { Local.SetClanTag(""); break; }
+}
+}
+}
+lasttime = time;
+}
+
+
+var scoutCach = UI.GetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance')
+var revolverCach = UI.GetValue('Rage', 'HEAVY PISTOl', 'Accuracy', 'Hitchance')
+function airHC() {
+    var scoutAir = UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Jump scout hitchance')
+    var revolverAir = UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Jump revolver hitchance')
+   
+    var local = Entity.GetLocalPlayer()
+    var localWeapon = Entity.GetWeapon(local)
+    var localWeaponName = Entity.GetName(localWeapon)
+    var inAir = Entity.GetProp(local, 'CBasePlayer', 'm_hGroundEntity')
+if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump Weapons"))
+{
+    if (localWeaponName == 'r8 revolver' && inAir =='m_hGroundEntity') {
+        UI.SetValue('Rage', 'HEAVY PISTOL', 'Accuracy', 'Hitchance', revolverAir)
+    } else {
+        UI.SetValue('Rage', 'HEAVY PISTOL', 'Accuracy', 'Hitchance', revolverCach)
+    }
+    if (localWeaponName == 'ssg 08' && inAir == 'm_hGroundEntity') {
+        UI.SetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance', scoutAir)
+    } else {
+        UI.SetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance', scoutCach)
+    }
+  }
+}
+
+/* ------------------------------------------------------ */
+
+const clr = [
+    text = [ 240, 240, 240, 255 ],
+    main = [ 38, 38, 38, 160 ],
+    back = [ 32, 32, 32, 255 ],
+    high = [ 48, 48, 48, 255 ],
+    red  = [ 240, 41, 41, 255 ],
+]
+
+var positions = [];
+var trace = [];
+var render = [];
+var local = Entity.GetLocalPlayer();
+
+function Clamp(v, min, max)
+{
+    return Math.max(Math.min(v, max), min);
+}
+
+/* ------------------------------------------------------ */
+
+function ImportGrenades()
+{
+    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
+    for (e in grenades)
+    {
+        pass = false;
+        for (g in positions)
+        {
+            if (positions[g][0] == grenades[e])
+            {
+                pass = true;
+                continue;
+            }
+        }
+        if (pass)
+            continue;
+
+        positions.push([grenades[e], Globals.Curtime(), [Entity.GetRenderOrigin(grenades[e])], Globals.Curtime()]);
+    }
+}
+
+/* ------------------------------------------------------ */
+
+function GrenadeWarning()
+{
+    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
+
+    if (!Entity.IsAlive(local)) { return; }
+   
+    for (g in grenades) {
+        for (var i = 0; i < grenades.length; i++) {
+           
+            var g = grenades[i];
+            var isInferno = Entity.GetClassID(g) === 100;
+            var isHeGrenade = Entity.GetClassID(g) === 9;
+
+            /* --------------- */
+
+            function DistanceInFeets (origin, destination) {
+                var sub = [destination[0] - origin[0], destination[1] - origin[1], destination[2] - origin[2]];
+                return Math.round(Math.sqrt(sub[0] ** 2 + sub[1] ** 2 + sub[2] ** 2) / 12);
+                //return Math.round(sub[0] + sub[1] + sub[2]); // Для измерения в юнитах
+            }
+
+            /* --------------- */
+
+            var destination = Entity.GetRenderOrigin(g);
+            var origin = Entity.GetEyePosition(local);
+            var distance = DistanceInFeets(origin, destination);
+            var screen = Render.WorldToScreen(destination);
+            var isSafe = distance > (isInferno ? 15 : 20) || trace[1] < 0.61;
+
+            /* --------------- */
+
+            if (distance > 256) { continue; }
+
+            if (isHeGrenade && Entity.GetProp (g, "CBaseCSGrenadeProjectile", "m_nExplodeEffectTickBegin")) { continue; }
+
+            /* --------------- */
+
+            Render.FilledRect (screen[0] + 16, screen[1] - 12, 48, 24, clr[1]);
+
+            Render.Polygon ([ [ screen[0] + 8,  screen[1] - 1 ], [ screen[0] + 16, screen[1] - 8 ], [ screen[0] + 16, screen[1] + 8 ] ], clr[1]);
+
+            Render.String (screen[0] + 36, screen[1] - 5, 0, Math.round(distance / 3.28) + " m", clr[0], 3);
+            Render.String (screen[0] + 20, screen[1] - 6, 0, isHeGrenade ? "I" : "K", isSafe ? clr[0] : clr[4], 6);
+
+            /* --------------- */
+
+            const warning_stroke = false; // true для красной обводки при опасности
+
+            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] - 8, !isSafe && warning_stroke ? clr[4] : clr[3])
+            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
+
+            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 16, screen[1] - 7, !isSafe && warning_stroke ? clr[4] : clr[3])
+            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
+
+            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
+            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 64, screen[1] + 12, !isSafe && warning_stroke ? clr[4] : clr[3])
+            Render.Line ( screen[0] + 64, screen[1] + 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
+           
+            /* --------------- */
+
+            if (isInferno)
+            {
+                var time = Entity.GetProp(g, "CInferno", "m_nFireEffectTickBegin") * Globals.TickInterval();
+                var factor = Clamp(((time + 7) - Globals.Curtime()) / 7, 0, 7);
+   
+                Render.FilledRect(screen[0] + 16, screen[1] + 10, 48, 2, clr[2]);
+                Render.FilledRect(screen[0] + 16, screen[1] + 10, Math.trunc(factor * 48), 2, clr[4]);
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------ */
+
+function DrawNade()
+{
+if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Nade warning"))
+    {
+    ImportGrenades();
+    GrenadeWarning();
+    }
+}
+
+
 function Main()
 {
-                  UI.AddLabel("-----------Arrows ind-----------")
-	UI.AddColorPicker( "Arrows color" )
-	UI.AddColorPicker( "Selected arrow color" )
-	UI.AddColorPicker( "Selected inverter color" )
-                  UI.AddCheckbox( "Display indicators")
-	UI.AddCheckbox( "Display arrows")
-                  UI.AddHotkey("Left")
-                  UI.AddHotkey("Right")
-                  UI.AddLabel("----------Aspect Ratio----------")
-                  UI.AddSliderInt( "Aspect ratio", 0, 500 );
+                  UI.AddLabel("--------------Rage--------------")
+                  UI.AddHotkey("pingspike")
+                  UI.AddHotkey("Weapon Override")
+                  UI.AddSliderInt("Weapon Mindmg", 0, 130)
+                  UI.AddCheckbox("Jump Weapons")
+                  UI.AddSliderInt('Jump scout hitchance', 0, 100)
+                  UI.AddSliderInt('Jump revolver hitchance', 0, 100)
                   UI.AddLabel("------------Anti-Aim------------")
                   UI.AddHotkey( "Freestanding" ); 
                   UI.AddCheckbox("legfucker");    
@@ -1423,51 +1695,63 @@ function Main()
                   UI.AddDropdown( "Low delta type", [ "Custom", "On key" ] );
                   UI.AddHotkey("Low delta on key");
                   UI.AddHotkey("Invertor Key");  
-                  UI.AddHotkey("Legit AA Key");       
-                  UI.AddLabel("----------Min-Damage---------")
-                  UI.AddHotkey("Weapon Override")
-                  UI.AddSliderInt("Weapon Mindmg", 0, 130)
-                  UI.AddLabel("-------------Visuals-------------")
+                  UI.AddHotkey("Legit AA Key");  
+                  UI.AddCheckbox("jitter fakelag")
+                  UI.AddSliderInt("Send Limit", 0, 16)
+                  UI.AddSliderInt("Choke Limit", 0, 16)     
+                  UI.AddLabel("----------Indicators----------")
+                  UI.AddCheckbox("Draw scope")
                   UI.AddSliderInt ("Distance from crosshair", 0, 200);
                   UI.AddSliderInt ("Size of lines", 20, 200);
                   UI.AddColorPicker( "Scope color" );
-                  UI.AddCheckbox("Indicator");
-                  UI.AddColorPicker("Indicator color");
-                  UI.AddLabel("--------Aimbot logging--------")
+                  UI.AddCheckbox("Desync line");
+                  UI.AddColorPicker("line color");
+	UI.AddColorPicker( "Arrows color" )
+	UI.AddColorPicker( "Selected arrow color" )
+	UI.AddColorPicker( "Selected inverter color" )
+                  UI.AddCheckbox( "Display indicators")
+	UI.AddCheckbox( "Display arrows")
+                  UI.AddHotkey("Left")
+                  UI.AddHotkey("Right")
+	UI.AddCheckbox("Nade warning")
+                  UI.AddLabel("--------------Misc--------------")
+                  UI.AddSliderInt( "Aspect ratio", 0, 500 );
+                  UI.AddSliderFloat("TP Dist", 50, 300);
                   UI.AddCheckbox( "Enable chat logging" );
-                  UI.AddLabel("----------Third-Person----------")
-                  UI.AddSliderFloat("TP Dist", 50, 300)
-                  UI.AddLabel("------------Fake-Lag------------")
-                  UI.AddSliderInt("Send Limit", 0, 16)
-                  UI.AddSliderInt("Choke Limit", 0, 16)
+                  UI.AddCheckbox( "Clantag" );
+                  UI.AddCheckbox( "Safe AWP");
+	UI.AddCheckbox( "Scope on scar" );
+	UI.AddCheckbox( "Ragdoll Force" );
 	
 	//  callbacks
 	Global.RegisterCallback("Draw", "drawind")
 	Global.RegisterCallback("CreateMove", "ManualAA")
 	Global.RegisterCallback("player_connect_full", "player_connect")
-                  Global.RegisterCallback("Draw", "draw")
-                  Global.RegisterCallback( "FrameStageNotify", "fsn" )
-                  Global.RegisterCallback("Draw","autoscope")
-                  Global.RegisterCallback("CreateMove", "freestanding")
-                  Global.RegisterCallback('Draw', 'safeAWP')
-                  Global.RegisterCallback("Draw", "drawscope")
+                Global.RegisterCallback("Draw", "draw")
+                Global.RegisterCallback( "FrameStageNotify", "fsn" )
+                Global.RegisterCallback("Draw","autoscope")
+                Global.RegisterCallback("CreateMove", "freestanding")
+                Global.RegisterCallback('Draw', 'safeAWP')
+                Global.RegisterCallback("Draw", "drawscope")
 	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
 	Global.RegisterCallback("item_purchase", "item_purchase");
-                  Global.RegisterCallback("player_hurt", "hitlog");
-	Global.RegisterCallback("Draw", "onDraw");
+                Global.RegisterCallback("player_hurt", "hitlog");
 	Global.RegisterCallback("Draw", "removelogs");
-                  Global.RegisterCallback("FrameStageNotify", "ragdollForce");
-                  Global.RegisterCallback("Draw", "drawString");
-                  Global.RegisterCallback("Draw", "SetEnabled");
-                  Global.RegisterCallback("CreateMove", "onCM")
-                  Global.RegisterCallback("CreateMove", "Low_delta");
-                  Global.RegisterCallback("FrameStageNotify", "ChangeDist");
+                Global.RegisterCallback("FrameStageNotify", "ragdollForce");
+                Global.RegisterCallback("Draw", "onDraw");
+                Global.RegisterCallback("Draw", "SetEnabled");
+                Global.RegisterCallback("CreateMove", "onCM")
+                Global.RegisterCallback("CreateMove", "Low_delta");
+                Global.RegisterCallback("FrameStageNotify", "ChangeDist");
 	Global.RegisterCallback("Draw", "indication")
-                  Global.RegisterCallback("Draw", "delta");
-                  Global.RegisterCallback("CreateMove", "anim");
-                  Global.RegisterCallback("CreateMove", "fakelags");
-                  Global.RegisterCallback("round_start", "roundstart")
-                  Global.RegisterCallback("CreateMove", "legit_aa");
-
+                Global.RegisterCallback("Draw", "delta");
+                Global.RegisterCallback("CreateMove", "anim");
+                Global.RegisterCallback("CreateMove", "fakelags");
+                Global.RegisterCallback("round_start", "roundstart")
+                Global.RegisterCallback("Draw", "pingspike")
+                Global.RegisterCallback("CreateMove", "legit_aa");
+                Global.RegisterCallback("Draw", "onRender");
+                Global.RegisterCallback('CreateMove', 'airHC')
+				Global.RegisterCallback("Draw", "DrawNade");
 }
 Main();
