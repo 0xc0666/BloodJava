@@ -11,7 +11,6 @@ var awp_cache = UI.GetValue("Rage", "AWP", "Targeting", "Minimum damage")
 var auto_cache = UI.GetValue("Rage", "AUTOSNIPER", "Targeting", "Minimum damage")
 var pistol_cache = UI.GetValue("Rage", "PISTOL", "Targeting", "Minimum damage")
 var fake_cache = UI.GetValue("Anti-Aim", "Fake-Lag", "Limit")
-const lowdelta_modes = UI.AddMultiDropdown("Low delta modes", [ "Slow walk", "Low HP", "Standing" ])
 var jump = false
 var oldTick = 0
 var lastPressed = 0
@@ -21,18 +20,14 @@ var tickcount = 0
 var original_aa = true;
 var flip = false
 
-const global_choked_commands = Globals.ChokedCommands, global_realtime = Globals.Realtime, global_frametime = Globals.Frametime, global_curtime = Globals.Curtime, global_tick_interval = Globals.TickInterval, global_tickrate = Globals.Tickrate, global_tickcount = Globals.Tickcount, global_frame_stage = Globals.FrameStage, ui_get_menu_position = UI.GetMenuPosition, ui_update_list = UI.UpdateList, ui_remove_item = UI.RemoveItem, ui_get_hotkey = UI.GetHotkey, ui_set_hotkey_state = UI.SetHotkeyState, ui_get_hotkey_state = UI.GetHotkeyState, ui_toggle_hotkey = UI.ToggleHotkey, ui_set_color = UI.SetColor, ui_add_sub_tab = UI.AddSubTab, ui_add_textbox = UI.AddTextbox, ui_add_color_picker = UI.AddColorPicker, ui_add_multi_dropdown = UI.AddMultiDropdown, ui_add_dropdown = UI.AddDropdown, ui_add_hotkey = UI.AddHotkey, ui_add_slider_float = UI.AddSliderFloat, ui_add_slider_int = UI.AddSliderInt, ui_add_checkbox = UI.AddCheckbox, ui_set_value = UI.SetValue, ui_get_children = UI.GetChildren, ui_get_value = UI.GetValue, ui_get_string = UI.GetString, ui_get_color = UI.GetColor, ui_is_menu_open = UI.IsMenuOpen, ui_set_enabled = UI.SetEnabled, entity_draw_flag = Entity.DrawFlag, entity_get_ccs_weapon_info = Entity.GetCCSWeaponInfo, entity_get_render_box = Entity.GetRenderBox, entity_get_weapons = Entity.GetWeapons, entity_get_entities_by_class_id = Entity.GetEntitiesByClassID, entity_get_hitbox_position = Entity.GetHitboxPosition, entity_get_eye_position = Entity.GeteyePosition, entity_get_game_rules_proxy = Entity.GetGameRulesProxy, entity_is_bot = Entity.IsBot, entity_get_weapon = Entity.GetWeapon, entity_set_prop = Entity.SetProp, entity_get_prop = Entity.GetProp, entity_get_render_origin = Entity.GetRenderOrigin, entity_get_name = Entity.GetName, entity_get_class_name = Entity.GetClassName, entity_get_class_id = Entity.GetClassID, entity_is_dormant = Entity.IsDormant, entity_is_alive = Entity.IsAlive, entity_is_valid = Entity.IsValid, entity_is_local_player = Entity.IsLocalPlayer, entity_is_enemy = Entity.IsEnemy, entity_is_teammate = Entity.IsTeammate, entity_get_entity_from_user_id = Entity.GetEntityFromUserID, entity_get_local_player = Entity.GetLocalPlayer, entity_get_teammates = Entity.GetTeammates, entity_get_enemies = Entity.GetEnemies, entity_get_players = Entity.GetPlayers, entity_get_entities = Entity.GetEntities, render_text_size = Render.TextSize, render_string = Render.String, render_filled_circle = Render.FilledCircle, render_textured_rect = Render.TexturedRect, render_add_texture = Render.AddTexture, render_find_font = Render.FindFont, render_add_font = Render.AddFont, render_polygon = Render.Polygon, render_gradient_rect = Render.GradientRect, render_get_screen_size = Render.GetScreenSize, render_world_to_screen = Render.WorldToScreen, render_circle = Render.Circle, render_filled_rect = Render.FilledRect, render_rect = Render.Rect, render_line = Render.Line, convar_set_string = Convar.SetString, convar_get_string = Convar.GetString, convar_set_float = Convar.SetFloat, convar_get_float = Convar.GetFloat, convar_set_int = Convar.SetInt, convar_get_int = Convar.GetInt, event_get_string = Event.GetString, event_get_float = Event.GetFloat, event_get_int = Event.GetInt, trace_raw_line = Trace.RawLine, trace_smoke = Trace.Smoke, trace_bullet = Trace.Bullet, trace_line = Trace.Line, usercmd_get_movement = UserCMD.GetMovement, usercmd_set_view_angles = UserCMD.SetViewAngles, usercmd_send = UserCMD.Send, usercmd_choke = UserCMD.Choke, usercmd_set_buttons = UserCMD.SetButtons, usercmd_get_buttons = UserCMD.GetButtons, usercmd_set_movement = UserCMD.SetMovement, sound_stop_microphone = Sound.StopMicrophone, sound_play_microphone = Sound.PlayMicrophone, sound_play = Sound.Play, local_get_inaccuracy = Local.GetInaccuracy, local_get_spread = Local.GetSpread, local_get_fake_yaw = Local.GetFakeYaw, local_get_real_yaw = Local.GetRealYaw, local_set_clan_tag = Local.SetClanTag, local_set_view_angles = Local.SetViewAngles, local_get_view_angles = Local.GetViewAngles, local_latency = Local.Latency, cheat_is_legit_config_active = Cheat.IsLegitConfigActive, cheat_is_rage_config_active = Cheat.IsRageConfigActive, cheat_get_username = Cheat.GetUsername, cheat_print_chat = Cheat.PrintChat, cheat_register_callback = Cheat.RegisterCallback, cheat_execute_command = Cheat.ExecuteCommand, cheat_print_color = Cheat.PrintColor, cheat_print = Cheat.Print, input_force_cursor = Input.ForceCursor, input_get_cursor_position = Input.GetCursorPosition, input_is_key_pressed = Input.IsKeyPressed, world_get_server_string = World.GetServerString, world_get_map_name = World.GetMapName, antiaim_set_lby_offset = AntiAim.SetLBYOffset, antiaim_set_real_offset = AntiAim.SetRealOffset, antiaim_set_fake_offset = AntiAim.SetFakeOffset, antiaim_get_override = AntiAim.GetOverride, antiaim_set_override = AntiAim.SetOverride, exploit_override_tolerance = Exploit.OverrideTolerance, exploit_override_shift = Exploit.OverrideShift, exploit_enable_recharge = Exploit.EnableRecharge, exploit_disable_recharge = Exploit.DisableRecharge, exploit_recharge = Exploit.Recharge, exploit_get_charge = Exploit.GetCharge, ragebot_get_targets = Ragebot.GetTargets, ragebot_ignore_target = Ragebot.IgnoreTarget, ragebot_force_hitbox_safety = Ragebot.ForceHitboxSafety, ragebot_force_target_minimum_damage = Ragebot.ForceTargetMinimumDamage, ragebot_force_target_hitchance = Ragebot.ForceTargetHitchance, ragebot_force_target_safety = Ragebot.ForceTargetSafety, ragebot_force_target = Ragebot.ForceTarget, ragebot_get_target = Ragebot.GetTarget, material_refresh = Material.Refresh, material_set_key_value = Material.SetKeyValue, material_get = Material.Get, material_destroy = Material.Destroy, material_create = Material.Create;
-
-var screen_size = render_get_screen_size();
-
-sv_cheats_cache = ui_get_value("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats");
-removals_cache = ui_get_value("Visual", "WORLD", "Entities", "Removals");
+sv_cheats_cache = UI.GetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats");
+removals_cache = UI.GetValue("Visual", "WORLD", "Entities", "Removals");
 function get_weapon(entity) {
-    if (entity_get_name(entity_get_weapon(entity)) == 'g3sg1' || entity_get_name(entity_get_weapon(entity)) == 'scar 20') return 'auto';
-    else if (entity_get_name(entity_get_weapon(entity)) == 'awp') return 'awp';
-    else if (entity_get_name(entity_get_weapon(entity)) == 'desert eagle') return 'deagle';
-    else if (entity_get_name(entity_get_weapon(entity)) == 'r8 revolver') return 'revolver';
-    else if (entity_get_name(entity_get_weapon(entity)) == 'ssg 08') return 'scout';
+    if (Entity.GetName(Entity.GetWeapon(Entity)) == 'g3sg1' || Entity.GetName(Entity.GetWeapon(Entity)) == 'scar 20') return 'auto';
+    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'awp') return 'awp';
+    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'desert eagle') return 'deagle';
+    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'r8 revolver') return 'revolver';
+    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'ssg 08') return 'scout';
     else return 'other';
 }
 should_draw = false
@@ -58,15 +53,15 @@ alpha_scope = 255
 
 function drawscope() {
     
-    var local_player = entity_get_local_player();
+    var local_player = Entity.GetLocalPlayer();
     fade_factor = ((1 / .15) * Globals.Frametime()) * 200
-    if (entity_is_alive(local_player)) {
-        if (ui_get_value("Misc", "JAVASCRIPT", "Script items", "Custom scope lines")) {
-            scoped = entity_get_prop(local_player, "CCSPlayer", "m_bIsScoped");
-            var offset = ui_get_value("Misc", "JAVASCRIPT", "Script items", "Scope lines offset");
-            var height = ui_get_value("Misc", "JAVASCRIPT", "Script items", "Scope lines height");
-            var color = ui_get_color("Misc", "JAVASCRIPT", "Script items", "Scope lines color 1");
-            var color2 = ui_get_color("Misc", "JAVASCRIPT", "Script items", "Scope lines color 2");
+    if (Entity.IsAlive(local_player)) {
+        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Custom scope lines")) {
+            scoped = Entity.GetProp(local_player, "CCSPlayer", "m_bIsScoped");
+            var offset = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Scope lines offset");
+            var height = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Scope lines height");
+            var color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Scope lines color 1");
+            var color2 = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Scope lines color 2");
                 
 
             if (!scoped && alpha_scope != 0)
@@ -77,33 +72,24 @@ function drawscope() {
         
                 
                 if (alpha_scope != 0 ) {
-                    ui_set_value("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
-                    convar_set_float("r_drawvgui",should_draw ? 1 : 0 );
-                    ui_set_value("Visual", "WORLD", "Entities", "Removals",should_draw ? set_dropdown_value(removals_cache, 2, true) : set_dropdown_value(removals_cache, 2, false)  );
-                    render_gradient_rect(screen_size[0] / 2 + offset, screen_size[1] / 2, height, 1, 1, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
-                    render_gradient_rect(screen_size[0] / 2 - height - offset, screen_size[1] / 2, height, 1, 1, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
-                    render_gradient_rect(screen_size[0] / 2, screen_size[1] / 2 + offset, 1, height, 0, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
-                    render_gradient_rect(screen_size[0] / 2, screen_size[1] / 2 - height - offset, 1, height, 0, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
+                    UI.SetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
+                    Convar.SetFloat("r_drawvgui",should_draw ? 1 : 0 );
+                    UI.SetValue("Visual", "WORLD", "Entities", "Removals",should_draw ? set_dropdown_value(removals_cache, 2, true) : set_dropdown_value(removals_cache, 2, false)  );
+                    Render.GradientRect(screen_size[0] / 2 + offset, screen_size[1] / 2, height, 1, 1, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
+                    Render.GradientRect(screen_size[0] / 2 - height - offset, screen_size[1] / 2, height, 1, 1, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
+                    Render.GradientRect(screen_size[0] / 2, screen_size[1] / 2 + offset, 1, height, 0, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
+                    Render.GradientRect(screen_size[0] / 2, screen_size[1] / 2 - height - offset, 1, height, 0, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
                 }
              if (!scoped) {
-                convar_set_float("r_drawvgui", 1);
-                ui_set_value("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
-                ui_set_value("Visual", "WORLD", "Entities", "Removals", 255);
+                Convar.SetFloat("r_drawvgui", 1);
+                UI.SetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
+                UI.SetValue("Visual", "WORLD", "Entities", "Removals", 255);
                 
             }
         }
     } else {
-        convar_set_float("r_drawvgui", 1);
+        Convar.SetFloat("r_drawvgui", 1);
     }
-}
-function menu_cb()
-{
-   enabled = UI.GetValue( "Scope crosshair");
-   UI.SetEnabled( "Custom scope lines", enabled);
-   UI.SetEnabled( "Scope lines color 1", enabled);
-   UI.SetEnabled( "Scope lines color 2", enabled);
-   UI.SetEnabled( "Scope lines height", enabled);
-   UI.SetEnabled( "Scope lines offset", enabled);
 }
 function menu_check() {
 	if (UI.IsMenuOpen()) {
@@ -123,9 +109,14 @@ Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░�
 Cheat.PrintColor([158,179,255,255],"██████╦╝██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░█████╗░░██║░░╚═╝███████║" + '\n')
 Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░██╔══╝░░██║░░██╗██╔══██║" + '\n')
 Cheat.PrintColor([158,179,255,255],"██████╦╝███████╗╚█████╔╝╚█████╔╝██████╔╝░░░██║░░░███████╗╚█████╔╝██║░░██║" + '\n')
-Cheat.PrintColor([158,179,255,255],"╚═════╝░╚══════╝░╚════╝░░╚════╝░╚═════╝░░░░╚═╝░░░╚══════╝░╚════╝░╚═╝░░╚═╝ v. 1.0.7" + '\n')
+Cheat.PrintColor([158,179,255,255],"╚═════╝░╚══════╝░╚════╝░░╚════╝░╚═════╝░░░░╚═╝░░░╚══════╝░╚════╝░╚═╝░░╚═╝ v. 1.0.8" + '\n')
 username = Cheat.GetUsername();
 Cheat.PrintColor([145,197,56,255], "Welocome, " + username + "!" + '\n');
+Cheat.Print('\n')
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.0.8]" + '\n')
+Cheat.PrintColor([158,179,255,255], "- Add tabs for AA, RAGE, VISUALS, MISC" +'\n')
+Cheat.PrintColor([158,179,255,255], "- clearing custom scope code?" +'\n')
+Cheat.Print('\n')
 Cheat.Print('\n')
 Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.0.7]" + '\n')
 Cheat.PrintColor([158,179,255,255], "- Add skeet scope with anim" +'\n')
@@ -134,17 +125,6 @@ Cheat.Print('\n')
 Cheat.PrintColor([145,197,56,255], "[UPDATES V1.0.6]" + '\n')
 Cheat.PrintColor([158,179,255,255], "- Add grenade warning" +'\n')
 Cheat.PrintColor([158,179,255,255], "- Add skeet scope checkbox" +'\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATES V1.0.5]" + '\n')
-Cheat.PrintColor([158,179,255,255], "- Add pingspike on key" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Release yougame page of script" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Add more acidtech-like indicators" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Change indicators color" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Minor checkboxes & other update" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Remove useless low delta drawstring" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Fix checkbox for arrows/indicators/desync line from not disabling" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Added jumpscout & jumpr8" +'\n')
 
 UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Hidden cvars", true)
 
@@ -858,34 +838,6 @@ if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Ragdoll force"))
    }
 }
 
-function SetEnabled()
-{
-    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
-    {
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta type", 1)
-    }
-    else
-    {
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta type", 0)
-    }
-
-    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0 && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
-    {
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 1)
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 0)
-    }
-    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1 && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
-    {
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 0)
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 1)
-    }
-    else
-    {
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta modes", 0)
-       UI.SetEnabled("Misc", "JAVASCRIPT", "Script items", "Low delta on key", 0)
-    }
-}
-
 function get_velocity(index)
 {
     var velocity = Entity.GetProp(index, "CBasePlayer", "m_vecVelocity[0]");
@@ -901,41 +853,36 @@ function get_health(index)
 function Low_delta()
 {
     localplayer_index = Entity.GetLocalPlayer( );
-    const lowdelta_dropdown_value = UI.GetValue.apply(null, lowdelta_modes);
-
-    var velocity = get_velocity(localplayer_index)
-    var health = get_health(localplayer_index)
-    var LowHP = false
-    var SlowWalk = false
-    var Standing = false
     var Onkey = false
 
-    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
-    {
-       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
-       SlowWalk = true
-       else
-       SlowWalk = false
 
-       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
-       LowHP = true
-       else
-       LowHP = false
-
-       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
-       Standing = true
-       else
-       Standing = false
-    }
-    else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
-    {
+    //else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
+    
        if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
        Onkey = true
        else
        Onkey = false
-    }
 
-        if (Standing == true || LowHP == true || SlowWalk == true || Onkey == true && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta"))
+// tanding == true || LowHP == true || SlowWalk == true || 
+//    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
+//    {
+//       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
+//       SlowWalk = true
+//       else
+//       SlowWalk = false
+//
+//       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
+//       LowHP = true
+//       else
+//       LowHP = false
+//
+//       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
+//       Standing = true
+//       else
+//       Standing = false
+//    }
+
+        if (Onkey == true)
         {
             AntiAim.SetOverride(1);
             AntiAim.SetFakeOffset(0);
@@ -1753,89 +1700,185 @@ if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Nade warning"))
     GrenadeWarning();
     }
 }
+UI.AddDropdown( "Sections", [ "Rage", "Visual", "Anti-Aim", "Misc" ] );
+function menu(){
 
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump Weapons", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump scout hitchance', false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump revolver hitchance', false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope crosshair", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Custom scope lines", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 1", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 2", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines height", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines offset", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Freestanding", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Invertor Key", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Legit AA Key", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","jitter fakelag", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Send Limit", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Choke Limit", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","TP Dist", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", false)
+   
+    if(UI.GetValue("Script items", "Sections") == 0){
+      // Rage
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump Weapons", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump scout hitchance', true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump revolver hitchance', true)
+    }
+    if(UI.GetValue("Script items", "Sections") == 1){
+      // Visual
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope crosshair", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Custom scope lines", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 1", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 2", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines height", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines offset", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", true)
+    }
+    if(UI.GetValue("Script items", "Sections") == 2){
+        //Anti-Aim
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Freestanding", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Invertor Key", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Legit AA Key", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","jitter fakelag", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Send Limit", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Choke Limit", true)
+
+    }
+    if(UI.GetValue("Script items", "Sections") == 3){
+      // Misc
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","TP Dist", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", true)
+    }
+}
+  Cheat.RegisterCallback("Draw","menu");
 
 function Main()
 {
-                  UI.AddLabel("--------------Rage--------------")
-                  UI.AddHotkey("pingspike")
-                  UI.AddHotkey("Weapon Override")
-                  UI.AddSliderInt("Weapon Mindmg", 0, 130)
-                  UI.AddCheckbox("Jump Weapons")
-                  UI.AddSliderInt('Jump scout hitchance', 0, 100)
-                  UI.AddSliderInt('Jump revolver hitchance', 0, 100)
-                  UI.AddLabel("------------Anti-Aim------------")
-                  UI.AddHotkey( "Freestanding" ); 
-                  UI.AddCheckbox("legfucker");    
-                  UI.AddCheckbox("Low delta");
-                  UI.AddDropdown( "Low delta type", [ "Custom", "On key" ] );
-                  UI.AddHotkey("Low delta on key");
-                  UI.AddHotkey("Invertor Key");  
-                  UI.AddHotkey("Legit AA Key");  
-                  UI.AddCheckbox("jitter fakelag")
-                  UI.AddSliderInt("Send Limit", 0, 16)
-                  UI.AddSliderInt("Choke Limit", 0, 16)     
-                  UI.AddLabel("----------Indicators----------")
-                  UI.AddCheckbox("Scope crosshair");
-                  UI.AddCheckbox("Custom scope lines");
-                  UI.AddColorPicker("Scope lines color 1");
-                  UI.AddColorPicker("Scope lines color 2");
-                  UI.AddSliderInt("Scope lines height", 0, 500);
-                  UI.AddSliderInt("Scope lines offset", 0, 500);
-                  UI.AddCheckbox("Desync line");
-                  UI.AddColorPicker("line color");
-	UI.AddColorPicker( "Arrows color" )
-	UI.AddColorPicker( "Selected arrow color" )
-	UI.AddColorPicker( "Selected inverter color" )
-                  UI.AddCheckbox( "Display indicators")
-	UI.AddCheckbox( "Display arrows")
-                  UI.AddHotkey("Left")
-                  UI.AddHotkey("Right")
-	UI.AddCheckbox("Nade warning")
-                  UI.AddLabel("--------------Misc--------------")
-                  UI.AddSliderInt( "Aspect ratio", 0, 500 );
-                  UI.AddSliderFloat("TP Dist", 50, 300);
-                  UI.AddCheckbox( "Enable chat logging" );
-                  UI.AddCheckbox( "Clantag" );
-                  UI.AddCheckbox( "Safe AWP");
-	UI.AddCheckbox( "Scope on scar" );
-	UI.AddCheckbox( "Ragdoll Force" );
+
+
+
+
+        UI.AddHotkey("pingspike")
+        UI.AddHotkey("Weapon Override")
+        UI.AddSliderInt("Weapon Mindmg", 0, 130)
+        UI.AddCheckbox("Jump Weapons")
+        UI.AddSliderInt('Jump scout hitchance', 0, 100)
+        UI.AddSliderInt('Jump revolver hitchance', 0, 100)
+
+        UI.AddHotkey("Freestanding"); 
+        UI.AddCheckbox("legfucker");    
+        UI.AddCheckbox("Low delta");
+        UI.AddHotkey("Low delta on key");
+        UI.AddHotkey("Invertor Key");  
+        UI.AddHotkey("Legit AA Key");  
+        UI.AddCheckbox("jitter fakelag")
+        UI.AddSliderInt("Send Limit", 0, 16)
+        UI.AddSliderInt("Choke Limit", 0, 16)     
+
+        UI.AddCheckbox("Scope crosshair");
+        UI.AddCheckbox("Custom scope lines");
+        UI.AddColorPicker("Scope lines color 1");
+        UI.AddColorPicker("Scope lines color 2");
+        UI.AddSliderInt("Scope lines height" , 0, 500);
+        UI.AddSliderInt("Scope lines offset" , 0, 500);
+        UI.AddCheckbox("Desync line");
+        UI.AddColorPicker("line color");
+	    UI.AddColorPicker("Arrows color")
+	    UI.AddColorPicker("Selected arrow color")
+        UI.AddColorPicker("Selected inverter color")
+        UI.AddCheckbox("Display indicators")
+	    UI.AddCheckbox("Display arrows")
+        UI.AddHotkey("Left")
+        UI.AddHotkey("Right")
+	    UI.AddCheckbox("Nade warning")
+
+        UI.AddSliderInt("Aspect ratio", 0, 500 );
+        UI.AddSliderFloat( "TP Dist", 50, 300);
+        UI.AddCheckbox("Enable chat logging" );
+        UI.AddCheckbox("Clantag");
+        UI.AddCheckbox("Safe AWP");
+	    UI.AddCheckbox("Scope on scar");
+	    UI.AddCheckbox("Ragdoll Force");
 	
 	//  callbacks
 	Global.RegisterCallback("Draw", "drawind")
 	Global.RegisterCallback("CreateMove", "ManualAA")
 	Global.RegisterCallback("player_connect_full", "player_connect")
-                Global.RegisterCallback("Draw", "draw")
-                Global.RegisterCallback( "FrameStageNotify", "fsn" )
-                Global.RegisterCallback("Draw","autoscope")
-                Global.RegisterCallback("CreateMove", "freestanding")
-                Global.RegisterCallback('Draw', 'safeAWP')
-                Global.RegisterCallback("Draw", "drawscope")
+    Global.RegisterCallback("Draw", "draw")
+    Global.RegisterCallback( "FrameStageNotify", "fsn" )
+    Global.RegisterCallback("Draw","autoscope")
+    Global.RegisterCallback("CreateMove", "freestanding")
+    Global.RegisterCallback('Draw', 'safeAWP')
+    Global.RegisterCallback("Draw", "drawscope")
 	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
 	Global.RegisterCallback("item_purchase", "item_purchase");
-                Global.RegisterCallback("player_hurt", "hitlog");
+    Global.RegisterCallback("player_hurt", "hitlog");
 	Global.RegisterCallback("Draw", "removelogs");
-                Global.RegisterCallback("FrameStageNotify", "ragdollForce");
-                Global.RegisterCallback("Draw", "onDraw");
-                Global.RegisterCallback("Draw", "SetEnabled");
-                Global.RegisterCallback("CreateMove", "onCM")
-                Global.RegisterCallback("CreateMove", "Low_delta");
-                Global.RegisterCallback("FrameStageNotify", "ChangeDist");
+    Global.RegisterCallback("FrameStageNotify", "ragdollForce");
+    Global.RegisterCallback("Draw", "onDraw");
+    Global.RegisterCallback("CreateMove", "onCM")
+    Global.RegisterCallback("CreateMove", "Low_delta");
+    Global.RegisterCallback("FrameStageNotify", "ChangeDist");
 	Global.RegisterCallback("Draw", "indication")
-                Global.RegisterCallback("Draw", "delta");
-                Global.RegisterCallback("CreateMove", "anim");
-                Global.RegisterCallback("CreateMove", "fakelags");
-                Global.RegisterCallback("round_start", "roundstart")
-                Global.RegisterCallback("Draw", "pingspike")
-                Global.RegisterCallback("CreateMove", "legit_aa");
-                Global.RegisterCallback("Draw", "onRender");
-                Global.RegisterCallback('CreateMove', 'airHC')
-				Global.RegisterCallback("Draw", "DrawNade");
-                Cheat.RegisterCallback("bomb_planted", "bomb_planted");
-                Cheat.RegisterCallback("bomb_defused", "reset");
-                Cheat.RegisterCallback("bomb_exploded", "reset");
-                Cheat.RegisterCallback("round_end", "reset");
-                Global.RegisterCallback("Draw", "menu_check")
-                Cheat.RegisterCallback("Unload", "unload");
+    Global.RegisterCallback("Draw", "delta");
+    Global.RegisterCallback("CreateMove", "anim");
+    Global.RegisterCallback("CreateMove", "fakelags");
+    Global.RegisterCallback("round_start", "roundstart")
+    Global.RegisterCallback("Draw", "pingspike")
+    Global.RegisterCallback("CreateMove", "legit_aa");
+    Global.RegisterCallback("Draw", "onRender");
+    Global.RegisterCallback('CreateMove', 'airHC')
+	Global.RegisterCallback("Draw", "DrawNade");
+    Cheat.RegisterCallback("bomb_planted", "bomb_planted");
+    Cheat.RegisterCallback("bomb_defused", "reset");
+    Cheat.RegisterCallback("bomb_exploded", "reset");
+    Cheat.RegisterCallback("round_end", "reset");
+    Global.RegisterCallback("Draw", "menu_check")
+    Cheat.RegisterCallback("Unload", "unload");
 }
 Main();
