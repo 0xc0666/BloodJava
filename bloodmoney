@@ -19,112 +19,81 @@ var clock = 0
 var tickcount = 0
 var original_aa = true;
 var flip = false
+const clamp = function(val, min, max) { return Math.min(Math.max(min, val), max) }
+var thirdperson_cache = UI.GetValue("Visuals", "WORLD", "View", "Thirdperson")
+var person = 0, turned = 1
 
-sv_cheats_cache = UI.GetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats");
-removals_cache = UI.GetValue("Visual", "WORLD", "Entities", "Removals");
-function get_weapon(entity) {
-    if (Entity.GetName(Entity.GetWeapon(Entity)) == 'g3sg1' || Entity.GetName(Entity.GetWeapon(Entity)) == 'scar 20') return 'auto';
-    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'awp') return 'awp';
-    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'desert eagle') return 'deagle';
-    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'r8 revolver') return 'revolver';
-    else if (Entity.GetName(Entity.GetWeapon(Entity)) == 'ssg 08') return 'scout';
-    else return 'other';
-}
-should_draw = false
-const reset = function(){
-    should_draw = false;
-    
-}
-const bomb_planted = function(){
-    should_draw = true;
-}
-function set_dropdown_value(value, index, enable) /*credits to ed*/ {
-    var mask = 1 << index;
-    return enable ? (value | mask) : (value & ~mask);
-}
-clamp = function (val, min, max) {
-    if (val > max)
-       return max
-    if (min > val)
-       return min
-    return val
- }
-alpha_scope = 255
-
-function drawscope() {
-    
-    var local_player = Entity.GetLocalPlayer();
-    fade_factor = ((1 / .15) * Globals.Frametime()) * 200
-    if (Entity.IsAlive(local_player)) {
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Custom scope lines")) {
-            scoped = Entity.GetProp(local_player, "CCSPlayer", "m_bIsScoped");
-            var offset = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Scope lines offset");
-            var height = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Scope lines height");
-            var color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Scope lines color 1");
-            var color2 = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Scope lines color 2");
-                
-
-            if (!scoped && alpha_scope != 0)
-                alpha_scope = clamp(alpha_scope - fade_factor, 0, 255)
-            if (scoped && alpha_scope != 255)
-                alpha_scope = clamp(alpha_scope + fade_factor, 0, 255)
-                
-        
-                
-                if (alpha_scope != 0 ) {
-                    UI.SetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
-                    Convar.SetFloat("r_drawvgui",should_draw ? 1 : 0 );
-                    UI.SetValue("Visual", "WORLD", "Entities", "Removals",should_draw ? set_dropdown_value(removals_cache, 2, true) : set_dropdown_value(removals_cache, 2, false)  );
-                    Render.GradientRect(screen_size[0] / 2 + offset, screen_size[1] / 2, height, 1, 1, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
-                    Render.GradientRect(screen_size[0] / 2 - height - offset, screen_size[1] / 2, height, 1, 1, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
-                    Render.GradientRect(screen_size[0] / 2, screen_size[1] / 2 + offset, 1, height, 0, [color[0], color[1], color[2], alpha_scope], [color2[0], color2[1], color2[2], 0]);
-                    Render.GradientRect(screen_size[0] / 2, screen_size[1] / 2 - height - offset, 1, height, 0, [color2[0], color2[1], color2[2], 0], [color[0], color[1], color[2], alpha_scope]);
-                }
-             if (!scoped) {
-                Convar.SetFloat("r_drawvgui", 1);
-                UI.SetValue("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", 1);
-                UI.SetValue("Visual", "WORLD", "Entities", "Removals", 255);
-                
-            }
-        }
-    } else {
-        Convar.SetFloat("r_drawvgui", 1);
-    }
-}
-function menu_check() {
-	if (UI.IsMenuOpen()) {
-		menu_cb();
-	}
-
-}
-
-function unload() {
-    convar_set_float("r_drawvgui", 1);
-    ui_set_value("Visual", "WORLD", "Entities", "Removals", removals_cache);
-    ui_set_value("Misc.", "GENERAL", "Miscellaneous", "Force sv_cheats", sv_cheats_cache);
-}
-
-Cheat.PrintColor([158,179,255,255],"██████╗░██╗░░░░░░█████╗░░█████╗░██████╗░████████╗███████╗░█████╗░██╗░░██╗" + '\n')
-Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░░░██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██║░░██║" + '\n')
-Cheat.PrintColor([158,179,255,255],"██████╦╝██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░█████╗░░██║░░╚═╝███████║" + '\n')
-Cheat.PrintColor([158,179,255,255],"██╔══██╗██║░░░░░██║░░██║██║░░██║██║░░██║░░░██║░░░██╔══╝░░██║░░██╗██╔══██║" + '\n')
-Cheat.PrintColor([158,179,255,255],"██████╦╝███████╗╚█████╔╝╚█████╔╝██████╔╝░░░██║░░░███████╗╚█████╔╝██║░░██║" + '\n')
-Cheat.PrintColor([158,179,255,255],"╚═════╝░╚══════╝░╚════╝░░╚════╝░╚═════╝░░░░╚═╝░░░╚══════╝░╚════╝░╚═╝░░╚═╝ v. 1.0.8" + '\n')
+Cheat.Print('\n')
+Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + '\n')
+Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + '\n')
+Cheat.PrintColor([255,0,0,255],"▒██▒ ▄██▒██░    ▒██░  ██▒▒██░  ██▒░██   █▌▒ ▓██░ ▒░▒███   ▒▓█    ▄ ▒██▀▀██░" + '\n')
+Cheat.PrintColor([255,0,0,255],"▒██░█▀  ▒██░    ▒██   ██░▒██   ██░░▓█▄   ▌░ ▓██▓ ░ ▒▓█  ▄ ▒▓▓▄ ▄██▒░▓█ ░██ " + '\n')
+Cheat.PrintColor([255,0,0,255],"░▓█  ▀█▓░██████▒░ ████▓▒░░ ████▓▒░░▒████▓   ▒██▒ ░ ░▒████▒▒ ▓███▀ ░░▓█▒░██▓" + '\n')
+Cheat.PrintColor([255,0,0,255],"░▒▓███▀▒░ ▒░▓  ░░ ▒░▒░▒░ ░ ▒░▒░▒░  ▒▒▓  ▒   ▒ ░░   ░░ ▒░ ░░ ░▒ ▒  ░ ▒ ░░▒░▒" + '\n')
+Cheat.PrintColor([255,0,0,255],"▒░▒   ░ ░ ░ ▒  ░  ░ ▒ ▒░   ░ ▒ ▒░  ░ ▒  ▒     ░     ░ ░  ░  ░  ▒    ▒ ░▒░ ░" + '\n')
+Cheat.PrintColor([255,0,0,255]," ░    ░   ░ ░   ░ ░ ░ ▒  ░ ░ ░ ▒   ░ ░  ░   ░         ░   ░         ░  ░░ ░" + '\n')
+Cheat.PrintColor([255,0,0,255]," ░          ░  ░    ░ ░      ░ ░     ░                ░  ░░ ░       ░  ░  ░" + '\n')
+Cheat.PrintColor([255,0,0,255],"      ░                            ░                      ░                " + '\n')
 username = Cheat.GetUsername();
-Cheat.PrintColor([145,197,56,255], "Welocome, " + username + "!" + '\n');
 Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.0.8]" + '\n')
-Cheat.PrintColor([158,179,255,255], "- Add tabs for AA, RAGE, VISUALS, MISC" +'\n')
-Cheat.PrintColor([158,179,255,255], "- clearing custom scope code?" +'\n')
+Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current version is: v 1.0.9" + '\n');
+Cheat.PrintColor([255,0,0,255], "Yougame Page: ")
+Cheat.Print("https://yougame.biz/threads/196597/" + '\n')
+Cheat.PrintColor([255,0,0,255], "Creator of script: ")
+Cheat.Print("ber$$erker#8168" + '\n')
+Cheat.PrintColor([255,0,0,255], "BIG THANKS TO:" + '\n')
+Cheat.PrintColor([255,0,0,255], "nijo for tabs: ")
+Cheat.Print("nijo#1149" + '\n')
+Cheat.PrintColor([255,0,0,255], "Mased for help with coding & other: ")
+Cheat.Print("Mased#2459" + '\n')
+Cheat.Print('\n')
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9]" + '\n')
+Cheat.PrintColor([255,0,0,255], "- Add dtpeek helper for awp and scout" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Change animated custom scope to default one" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add animated thirdperson" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Rework nade warning" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Remove freestanding on key" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add checkbox for clock sync" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add commands for training server" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add fps boost" +'\n')
 Cheat.Print('\n')
 Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.0.7]" + '\n')
-Cheat.PrintColor([158,179,255,255], "- Add skeet scope with anim" +'\n')
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.8]" + '\n')
+Cheat.PrintColor([255,0,0,255], "- Add tabs for AA, RAGE, VISUALS, MISC" +'\n')
+Cheat.PrintColor([255,0,0,255], "- remove custom scope" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add custom arms skin" +'\n')
 Cheat.Print('\n')
 Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATES V1.0.6]" + '\n')
-Cheat.PrintColor([158,179,255,255], "- Add grenade warning" +'\n')
-Cheat.PrintColor([158,179,255,255], "- Add skeet scope checkbox" +'\n')
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.7]" + '\n')
+Cheat.PrintColor([255,0,0,255], "- Add skeet scope with anim" +'\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+Cheat.Print('\n')
+
+
 
 UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Hidden cvars", true)
 
@@ -140,18 +109,59 @@ function correctLBYMode()
 {
 	if (isDoubleTapActive() == 1)
 	{
-			//UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "0")
 			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 6);
 	}
 	else
 	{
-			//UI.SetValue("Anti-Aim", "Fake angles", "LBY mode", "1")
 			UI.SetValue("Rage", "AUTOSNIPER", "Accuracy", "Auto stop mode", 64);
 	}
 }
 
 correctLBYMode();
 
+autostopmodescout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode"); autostopmodeawp = UI.GetValue("Rage", "AWP", "Accuracy", "Auto stop mode"); safepointscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point"); safepointawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer safe point"); bodyaimscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim"); bodyaimawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer body aim");
+
+function helper() {
+	
+	if (UI.GetValue("Script items", "Peek Helper for AWP/Scout", true)) {
+		if (UI.IsHotkeyActive("Misc", "GENERAL", "Movement", "Auto peek") && UI.IsHotkeyActive("Rage", "GENERAL", "Exploits", "Doubletap")) {
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", false);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", false);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", true);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", true);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", true);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", true);
+                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", true);
+			} else {
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);
+                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
+			}
+		} else {
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);
+                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
+		}				
+	}						
+
+
+function unloadhelper() {
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
+                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
+                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);	
+                UI.ToggleHotkey("Misc", "JAVASCRIPT", "Script items", "Freestanding");
+}
 
 LPx = [(screen_size[0] /2) - 30, (screen_size[1] /2) + 7];
 LPy = [(screen_size[0] /2) - 30, (screen_size[1] /2) - 7];
@@ -342,10 +352,9 @@ var green = [36, 240, 80,255];
 var red = [250, 42, 42, 255];
 var redsafe = [250, 42, 42, 255];
 
-
+if(UI.GetValue("Script Items", "Enable clock sync"))
+{
 	if (ping > 69)
-	
-	
 	{
 	Render.StringCustom(screen_size[0] / 3 - -317, UY + 3, 0, "!", [64, 50, 15, 200], font3 );               
 	Render.StringCustom(screen_size[0] / 3 - -318, UY + 3, 0, "!", ping < 69 ? signColor : [red[0],red[1],red[2],alpha_3 ], font3 );  	
@@ -472,6 +481,7 @@ var lp = Entity.GetLocalPlayer();
 	Render.StringCustom(screen_size[0] / 2 + 3, screen_size[1] - 31, 0, "disabled", [0, 0, 0,255], font2 );
 	Render.StringCustom(screen_size[0] / 2 + 2, screen_size[1] - 32, 0, "disabled", red, font2 );
     }
+  }
 }
 
 function fsn( ) {
@@ -520,21 +530,6 @@ function safeAWP() {
 	}
 }
 }
-
-function freestanding()
-{
-    if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Freestanding"))
-    {
-        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", true);
-    }
-    else
-    {
-        {
-            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
-        }
-    }
-}
-
 
 function pingspike()
 {
@@ -810,12 +805,10 @@ function onDraw() {
 function ragdollForce( )
 {
     UI.SetValue("Misc", "GENERAL", "Miscellaneous", "Ragdoll Gravity", "1")
-
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Ragdoll Force")) {
     framestage = Cheat.FrameStage();
-if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Ragdoll force"))
-   {
     if (framestage == 3)
-    {   
+    { 
         entities = Entity.GetEntities();
         for (i = 0; i < entities.length; i++)
         {
@@ -833,9 +826,9 @@ if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Ragdoll force"))
                 Entity.SetProp(entities[i], "CCSRagdoll", "m_vecRagdollVelocity", dir);
                 Entity.SetProp(entities[i], "CBaseAnimating", "m_vecForce", dir1);
             }
-         }    
-	  }
-   }
+        }
+      }
+    }
 }
 
 function get_velocity(index)
@@ -853,36 +846,8 @@ function get_health(index)
 function Low_delta()
 {
     localplayer_index = Entity.GetLocalPlayer( );
-    var Onkey = false
-
-
-    //else if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 1)
     
        if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
-       Onkey = true
-       else
-       Onkey = false
-
-// tanding == true || LowHP == true || SlowWalk == true || 
-//    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta") && UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Low delta type") == 0)
-//    {
-//       if (lowdelta_dropdown_value & (1 << 0) && UI.IsHotkeyActive("Anti-Aim", "Extra", "Slow walk"))
-//       SlowWalk = true
-//       else
-//       SlowWalk = false
-//
-//       if (lowdelta_dropdown_value & (1 << 1) && health < 50)
-//       LowHP = true
-//       else
-//       LowHP = false
-//
-//       if (lowdelta_dropdown_value & (1 << 2) && velocity < 3)
-//       Standing = true
-//       else
-//       Standing = false
-//    }
-
-        if (Onkey == true)
         {
             AntiAim.SetOverride(1);
             AntiAim.SetFakeOffset(0);
@@ -967,12 +932,6 @@ function onCM() {
 
 }
 
-function ChangeDist()
-{
-    Dist = UI.GetValue( "Misc", "JAVASCRIPT", "TP Dist");
-    UI.SetValue( "Visuals", "WORLD", "View", "Thirdperson", Dist );
-}
-
 alpha_main = 0
 alpha_anim = 0
 add_anim   = 0
@@ -1055,7 +1014,15 @@ function indication() {
    isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 0 ? true : false )
    isFS = UI.IsHotkeyActive("Script items", "Freestanding")
    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if (UI.GetValue("Script items", "Desync line", true))
+   {
    add_y = 40
+   }
+   else
+   {
+   add_y = 20
+   }
+
    //animation
    add_factor = 10
    fade_factor = ((1 / .15) * Globals.Frametime() * 200) / 200
@@ -1196,6 +1163,18 @@ function indication() {
    if(alpha_duck < 0.01) alpha_duck = 0
    if(add_duck < 0.01) add_duck = 0
 
+   if(isDoubletap && Exploit.GetCharge() >= 0.5 ){
+      value_arc = clamp(value_arc + fade_factor * 1.2 * value_dt, 0, 1)
+     } else {
+      value_arc = clamp(value_arc - fade_factor * 1.2 * value_arc, 0, 1)
+     }
+   
+   if(isDoubletap && Exploit.GetCharge() >= 0.5 ){
+      value_arc = clamp(value_arc + fade_factor * 1.2 * value_dt, 0, 1)
+     } else {
+      value_arc = clamp(value_arc - fade_factor * 1.2 * value_arc, 0, 1)
+     }
+
    //Double tap animation
 if(!isFakeDuck && isDoubletap && green_dt != 1 && Exploit.GetCharge() >= 0.3 && alpha_main == 255){
    value_dt = clamp(value_dt + fade_factor , 0, 1)
@@ -1235,86 +1214,29 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
    
    hs_color = [250,200,0,alpha_hs * 255]
 
-   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y + 1, 1, "BLOODTECH", [0, 0, 0, alpha_main],3);
-   Render.String(screen_size[0] /2, screen_size[1] /2 + add_y, 1, "BLOODTECH", [158,179,255, alpha_main],3);
-
-   if(alpha_dt != 0){
-       add_y = add_y + add_dt * add_factor
-   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "DT", [0, 0, 0, dt_color[3]], 3);
-   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "DT", dt_color, 3);
-   }
-
-   if(alpha_hs != 0){
-       add_y = add_y + add_hs * add_factor
-   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "HIDE", [0, 0, 0, hs_color[3]], 3);
-   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "HIDE", hs_color, 3);
-   }
+    Render.String(screen_size[0] /2, screen_size[1] /2 + add_y + 1, 1, "BLOODTECH", [0, 0, 0, alpha_main],3);
+    Render.String(screen_size[0] /2, screen_size[1] /2 + add_y, 1, "BLOODTECH", [158, 179, 255, alpha_main],3);
 
     if (islowdelta) {
        add_y = add_y + add_factor
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "IDEAL YAW", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "IDEAL YAW", [158,179,255, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "LOW DELTA", [0, 0, 0, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LOW DELTA", [158, 179, 255, alpha_main], 3);
     } else if (isLegitAA)  {
        add_y = add_y + add_factor
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "LEGIT", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LEGIT", [158, 179,255, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "LEGIT AA", [0, 0, 0, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "LEGIT AA", [158, 179, 255, alpha_main], 3);
     } else {
        add_y = add_y + add_factor
        Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y + 1, 1, "STATIC", [0, 0, 0, alpha_main], 3);
-       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [158,179,255, alpha_main], 3);
+       Render.String(screen_size[0] /2, screen_size[1] / 2 + add_y, 1, "STATIC", [158, 179, 255, alpha_main], 3);
     }
-   
+
    if (isFakeDuck || alpha_duck_anim > 0 && alpha_main > 50) {
       add_y = add_y + add_duck * add_factor;
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DUCK", [0, 0, 0, alpha_duck_anim], 3);
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DUCK", [158, 181, 113, alpha_duck_anim], 3);
    }
 
-  if (alpha_autopeek > 0) {
-      add_y = add_y + add_autopeek * add_factor ;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
-   }
-   if (alpha_FS > 0) {
-      add_y = add_y + add_FS * add_factor ;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "FREE", [0, 0, 0, alpha_FS * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "FREE", [197, 237, 121, alpha_FS * 255], 3);
-   }
-   if (alpha_SP > 0) {
-      add_y = add_y + add_SP * add_factor ;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "SAFE", [0, 0, 0, alpha_SP * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "SAFE", [141, 140, 197, alpha_SP * 255], 3);
-   }
-   if (alpha_ping > 0) {
-      add_y = add_y + add_ping * add_factor ;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PING", [0, 0, 0, alpha_ping * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PING", [141, 140, 197, alpha_ping * 255], 3);
-   }
-    if (alpha_damage > 0) {
-       add_y = add_y + add_damage * add_factor;
-   
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DMG", [0, 0, 0, alpha_damage * 255], 3);
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DMG", [158, 181, 113, alpha_damage * 255], 3);
-    }
-    if (alpha_BAIM > 0) {
-       add_y = add_y + add_BAIM * add_factor;
-   
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
-       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
-    }
-
-   if (alpha_legit > 0) {
-      add_y = add_y + add_legit * add_factor;
-   
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "LEGIT", [0, 0, 0, alpha_legit * 255], 3);
-      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "LEGIT", [20, 255, 0, alpha_legit* 255], 3);
-   }
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   
    if(isDoubletap && Exploit.GetCharge() >= 0.5 ){
       value_arc = clamp(value_arc + fade_factor * 1.2 * value_dt, 0, 1)
      } else {
@@ -1331,13 +1253,12 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
         inner_radius = 2.3
         segments = 30
         
-        
       if(value_arc < 0.01) value_arc = 0
         max_angle = 360 * value_arc;
         
-
-       render_arc(x + 6, y + 31, distance, inner_radius, -90, max_angle, segments, [0, 0, 0, 120 * alpha_dt]);
-       render_arc(x + 5, y + 30, distance, inner_radius, -90, max_angle, segments, dt_color);
+       add_y = add_y + add_dt
+       render_arc(x + 6, y + add_y - 9, distance, inner_radius, -90, max_angle, segments, [0, 0, 0, 120 * alpha_dt]);
+       render_arc(x + 5, y + add_y - 10, distance, inner_radius, -90, max_angle, segments, dt_color);
 
 
 
@@ -1386,10 +1307,63 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
                ],
                   dt_color
              );
-          }
+		  }
+		 }
+
+
+   if(alpha_dt != 0){
+       add_y = add_y + add_dt * add_factor
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "DT", [0, 0, 0, dt_color[3]], 3);
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "DT", dt_color, 3);
+   }
+
+   if(alpha_hs != 0){
+       add_y = add_y + add_hs * add_factor
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y + 1 , 1, "HIDE", [0, 0, 0, hs_color[3]], 3);
+   Render.String(screen_size[0] /2, screen_size[1] / 2  + add_y, 1, "HIDE", hs_color, 3);
+   }
+
+  if (alpha_autopeek > 0) {
+      add_y = add_y + add_autopeek * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PEEK", [0, 0, 0, alpha_autopeek * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PEEK", [73, 71, 166, alpha_autopeek * 255], 3);
+   }
+   if (alpha_SP > 0) {
+      add_y = add_y + add_SP * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "SAFE", [0, 0, 0, alpha_SP * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "SAFE", [141, 140, 197, alpha_SP * 255], 3);
+   }
+   if (alpha_ping > 0) {
+      add_y = add_y + add_ping * add_factor ;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "PING", [0, 0, 0, alpha_ping * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "PING", [141, 140, 197, alpha_ping * 255], 3);
+   }
+    if (alpha_damage > 0) {
+       add_y = add_y + add_damage * add_factor;
+   
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "DMG", [0, 0, 0, alpha_damage * 255], 3);
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "DMG", [158, 181, 113, alpha_damage * 255], 3);
+    }
+    if (alpha_BAIM > 0) {
+       add_y = add_y + add_BAIM * add_factor;
+   
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "BAIM", [0, 0, 0, alpha_BAIM * 255], 3);
+       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "BAIM", [141, 140, 197, alpha_BAIM * 255], 3);
+    }
+
+   if (alpha_legit > 0) {
+      add_y = add_y + add_legit * add_factor;
+   
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "LEGIT", [0, 0, 0, alpha_legit * 255], 3);
+      Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "LEGIT", [20, 255, 0, alpha_legit* 255], 3);
+   }
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          
          }
       }
-   }
 }
 
 function delta() {
@@ -1618,74 +1592,56 @@ function ImportGrenades()
 
 /* ------------------------------------------------------ */
 
+function ImportGrenades()
+{
+    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(113).concat(Entity.GetEntitiesByClassID(100)));
+    for (e in grenades)
+    {
+        pass = false;
+        for (g in positions)
+        {
+            if (positions[g][0] == grenades[e])
+            {
+                pass = true;
+                continue;
+            }
+        }
+        if (pass)
+            continue;
+
+        positions.push([grenades[e], Globals.Curtime(), [Entity.GetRenderOrigin(grenades[e])], Globals.Curtime()]);
+    }
+}
 function GrenadeWarning()
 {
     var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
 
     if (!Entity.IsAlive(local)) { return; }
-   
+    
     for (g in grenades) {
         for (var i = 0; i < grenades.length; i++) {
-           
+            
             var g = grenades[i];
             var isInferno = Entity.GetClassID(g) === 100;
             var isHeGrenade = Entity.GetClassID(g) === 9;
-
-            /* --------------- */
-
             function DistanceInFeets (origin, destination) {
                 var sub = [destination[0] - origin[0], destination[1] - origin[1], destination[2] - origin[2]];
                 return Math.round(Math.sqrt(sub[0] ** 2 + sub[1] ** 2 + sub[2] ** 2) / 12);
-                //return Math.round(sub[0] + sub[1] + sub[2]); // Для измерения в юнитах
             }
-
-            /* --------------- */
-
             var destination = Entity.GetRenderOrigin(g);
             var origin = Entity.GetEyePosition(local);
             var distance = DistanceInFeets(origin, destination);
             var screen = Render.WorldToScreen(destination);
             var isSafe = distance > (isInferno ? 15 : 20) || trace[1] < 0.61;
-
-            /* --------------- */
-
             if (distance > 256) { continue; }
-
             if (isHeGrenade && Entity.GetProp (g, "CBaseCSGrenadeProjectile", "m_nExplodeEffectTickBegin")) { continue; }
-
-            /* --------------- */
-
-            Render.FilledRect (screen[0] + 16, screen[1] - 12, 48, 24, clr[1]);
-
-            Render.Polygon ([ [ screen[0] + 8,  screen[1] - 1 ], [ screen[0] + 16, screen[1] - 8 ], [ screen[0] + 16, screen[1] + 8 ] ], clr[1]);
-
-            Render.String (screen[0] + 36, screen[1] - 5, 0, Math.round(distance / 3.28) + " m", clr[0], 3);
-            Render.String (screen[0] + 20, screen[1] - 6, 0, isHeGrenade ? "I" : "K", isSafe ? clr[0] : clr[4], 6);
-
-            /* --------------- */
-
-            const warning_stroke = false; // true для красной обводки при опасности
-
-            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] - 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-
-            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 16, screen[1] - 7, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-
-            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 64, screen[1] + 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 64, screen[1] + 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-           
-            /* --------------- */
-
-            if (isInferno)
-            {
-                var time = Entity.GetProp(g, "CInferno", "m_nFireEffectTickBegin") * Globals.TickInterval();
-                var factor = Clamp(((time + 7) - Globals.Curtime()) / 7, 0, 7);
-   
-                Render.FilledRect(screen[0] + 16, screen[1] + 10, 48, 2, clr[2]);
-                Render.FilledRect(screen[0] + 16, screen[1] + 10, Math.trunc(factor * 48), 2, clr[4]);
-            }
+            font = Render.AddFont("Small fonts", 7, 100);
+            const warning_stroke = true;
+            Render.FilledCircle( screen[0], screen[1] + 39, 25, [ 0, 0, 0, 30 ])
+            Render.Circle( screen[0], screen[1] + 39, 25, !isSafe && warning_stroke ? [ 240, 41, 41, 255 ] : [ 0, 0, 0, 255 ]) 
+            Render.StringCustom (screen[0] - 10, screen[1] + 48, 0, Math.round(distance / 3.28) + " m", [ 0, 0, 0, 255 ], font);
+            Render.StringCustom (screen[0] - 9, screen[1] + 49, 0, Math.round(distance / 3.28) + " m", [ 240, 240, 240, 255 ], font);
+            Render.String (screen[0] - 8, screen[1] + 27, 0, isHeGrenade ? "I" : "K", [ 240, 240, 240, 255 ], 5);
         }
     }
 }
@@ -1700,6 +1656,180 @@ if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Nade warning"))
     GrenadeWarning();
     }
 }
+
+function armsColor()
+{
+    if (UI.GetValue("Script items", "Enable Custom Arms")) {
+    var team = Entity.GetProp(Entity.GetLocalPlayer(),"DT_BaseEntity", "m_iTeamNum");
+    if(team == 2){ // T
+    if(Convar.GetString("r_skin") == UI.GetValue("T arms skin")) return;
+    Global.ExecuteCommand("r_skin " + UI.GetValue("T arms skin"));
+    }
+    else if(team == 3){ // CT
+    if(Convar.GetString("r_skin") == UI.GetValue("CT arms skin")) return;
+    Global.ExecuteCommand("r_skin " + UI.GetValue("CT arms skin"));
+    }
+  }
+}
+
+function drawscope() {
+    var dist = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Distance from crosshair");
+    var size = UI.GetValue ("Misc", "JAVASCRIPT", "Script items", "Size of lines");
+    var color =UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Scope color" );
+    var color2 =UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Scope color 2" );
+    var local = Entity.GetLocalPlayer();
+    var is_scope = Entity.GetProp (local, "DT_CSPlayer", "m_bIsScoped");
+    localplayer_index = Entity.GetLocalPlayer( )
+    localplayer_weapon = Entity.GetWeapon(localplayer_index)
+    weapon_name = Entity.GetName(localplayer_weapon)
+
+if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Enable custom scope", true)) {
+    if ((is_scope) && (weapon_name == "scar 20" ||  weapon_name == "g3sg1" || weapon_name == "ssg 08" || weapon_name == "awp")) {
+            var screen_size = Global.GetScreenSize();
+            x = screen_size[0] / 2;
+            y = screen_size[1] / 2;
+
+        Render.GradientRect ( x + dist + 1, y, size, 1, 1, [color[0], color[1], color[2], 255], [color2[0], color2[1], color2[2], 50] );
+        Render.GradientRect ( x, y + dist + 1, 1, size, 0, [color[0], color[1], color[2], 255], [color2[0], color2[1], color2[2], 50] );
+        Render.GradientRect ( x - dist  - size, y, size, 1, 1, [color2[0], color2[1], color2[2], 50], [color[0], color[1], color[2], 255] );
+        Render.GradientRect ( x, y - dist - size, 1, size, 0, [color2[0], color2[1], color2[2], 50], [color[0], color[1], color[2], 255] );
+
+        Convar.SetFloat("r_drawvgui", 0)
+        Convar.SetFloat("cl_draw_only_deathnotices", 1)
+        }
+        else
+        {
+        Convar.SetFloat("r_drawvgui", 1)
+        Convar.SetFloat("cl_draw_only_deathnotices", 0)
+        }
+    }
+}
+
+const thirdperson = function() {
+    local = Entity.GetLocalPlayer()
+    var thirdperson_cache = UI.GetValue("Thirdperson distance"),
+    hotkey_state = UI.IsHotkeyActive("Script items", "Animated thirdperson"),
+    fade_factor = ((1 / .005) * Globals.Frametime())
+    if(hotkey_state && person != 1 && Entity.IsAlive(local))
+        person = clamp(person - fade_factor, 49, thirdperson_cache)
+    if(!hotkey_state && person != 0 || !Entity.IsAlive(local))
+        person = clamp(person + fade_factor, 49, thirdperson_cache)
+    if(hotkey_state && person == 49 && turned) {
+        UI.ToggleHotkey("Visuals", "WORLD", "View", "Thirdperson")
+        turned = 0
+    }
+
+    if(!hotkey_state && person > 49 && !turned) {
+        UI.ToggleHotkey("Visuals", "WORLD", "View", "Thirdperson")
+        turned = 1
+    }
+
+    if(turned && !UI.IsHotkeyActive("Visuals", "WORLD", "View", "Thirdperson") || !turned && UI.IsHotkeyActive("Visuals", "WORLD", "View", "Thirdperson"))
+        UI.ToggleHotkey("Visuals", "WORLD", "View", "Thirdperson")
+    if(person != 0) UI.SetValue("Visuals", "WORLD", "View", "Thirdperson", person );
+}
+
+const unload = function() {
+    UI.SetValue("Visuals", "WORLD", "View", "Thirdperson", thirdperson_cache );
+}
+
+function fps_boost()
+{
+    if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Fps Boost"))
+        {
+            // Disable shadows ->
+            Convar.SetString("r_shadows", "0");
+            Convar.SetString("cl_csm_static_prop_shadows", "0");
+            Convar.SetString("cl_csm_shadows", "0");
+            Convar.SetString("cl_csm_world_shadows", "0");
+            Convar.SetString("cl_foot_contact_shadows", "0");
+            Convar.SetString("cl_csm_viewmodel_shadows", "0");
+            Convar.SetString("cl_csm_rope_shadows", "0");
+            Convar.SetString("cl_csm_sprite_shadows", "0");
+            // Disable blood ->
+            Convar.SetString("violence_hblood", "0");
+        
+            // Disable 3dsky ->
+            Convar.SetString("r_3dsky", "0");
+
+            // Disable decals ->
+            //Convar.SetString("r_drawdecals", "0");
+
+            // Disable rain ->
+            Convar.SetString("r_drawrain", "0");
+        
+            // Disable ropes ->
+            Convar.SetString("r_drawropes", "0");
+
+            // Disable sprites ->
+            Convar.SetString("r_drawsprites", "0");
+
+            // Disable water fog ->
+            Convar.SetString("fog_enable_water_fog", "0");
+        }
+        else
+        {
+            // Enable shadows ->
+            Convar.SetString("r_shadows", "1");
+            Convar.SetString("cl_csm_static_prop_shadows", "1");
+            Convar.SetString("cl_csm_shadows", "1");
+            Convar.SetString("cl_csm_world_shadows", "1");
+            Convar.SetString("cl_foot_contact_shadows", "1");
+            Convar.SetString("cl_csm_viewmodel_shadows", "1");
+            Convar.SetString("cl_csm_rope_shadows", "1");
+            Convar.SetString("cl_csm_sprite_shadows", "1");
+        
+            // Enable blood ->
+            Convar.SetString("violence_hblood", "1");
+        
+            // Enable 3dsky ->
+            Convar.SetString("r_3dsky", "1");
+
+            // Enable decals ->
+            //Convar.SetString("r_drawdecals", "1");
+
+            // Enable rain ->
+            Convar.SetString("r_drawrain", "1");
+        
+            // Enable ropes ->
+            Convar.SetString("r_drawropes", "1");
+
+            // Enable sprites ->
+            Convar.SetString("r_drawsprites", "1");
+
+            // Enable water fog ->
+            Convar.SetString("fog_enable_water_fog", "1");
+        }
+}
+
+function training_server() {
+    if (!UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Training server")) return;
+    Cheat.ExecuteCommand("bot_kick");
+    Cheat.ExecuteCommand("sv_cheats 1");
+    Cheat.ExecuteCommand("mp_roundtime_defuse 99999999999999999999");
+    Cheat.ExecuteCommand("mp_roundtime_hostage 99999999999999999999");
+    Cheat.ExecuteCommand("mp_roundtime 99999999999999999999");
+    Cheat.ExecuteCommand("mp_warmup_end");
+    Cheat.ExecuteCommand("sv_infinite_ammo 1");
+    Cheat.ExecuteCommand("mp_maxmoney 64000");
+    Cheat.ExecuteCommand("mp_startmoney 64000");
+    Cheat.ExecuteCommand("ammo_grenade_limit_total 6");
+    Cheat.ExecuteCommand("mp_buy_anywhere 1");
+    Cheat.ExecuteCommand("sv_grenade_trajectory 1");
+    Cheat.ExecuteCommand("sv_showimpacts_time 10");
+    Cheat.ExecuteCommand("sv_showimpacts 1");
+    Cheat.ExecuteCommand("sv_grenade_trajectory_time 10");
+    Cheat.ExecuteCommand("mp_buytime 99999999999999999999");
+    Cheat.ExecuteCommand("mp_restartgame 1");
+    Cheat.ExecuteCommand("mp_freezetime 1");
+    Cheat.ExecuteCommand("cl_showpos 1");
+    Cheat.ExecuteCommand("sv_airaccelerate 206");
+    Cheat.ExecuteCommand("mp_respawn_on_death_ct 1");
+    Cheat.ExecuteCommand("mp_respawn_on_death_t 1");
+    Cheat.ExecuteCommand("god");
+    UI.SetValue("Misc", "JAVASCRIPT", "Script items", "Training server", 0)
+}
+
 UI.AddDropdown( "Sections", [ "Rage", "Visual", "Anti-Aim", "Misc" ] );
 function menu(){
 
@@ -1709,12 +1839,6 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump Weapons", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump scout hitchance', false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump revolver hitchance', false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope crosshair", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Custom scope lines", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 1", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 2", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines height", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines offset", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", false)
@@ -1724,7 +1848,6 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Freestanding", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", false)
@@ -1736,16 +1859,30 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","TP Dist", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","T arms skin", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","CT arms skin", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable custom scope", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Distance from crosshair", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Size of lines", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color 2", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Peek Helper for AWP/Scout", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Animated thirdperson", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Thirdperson distance", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Training server", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Fps Boost", false)
    
     if(UI.GetValue("Script items", "Sections") == 0){
       // Rage
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Peek Helper for AWP/Scout", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump Weapons", true)
@@ -1754,25 +1891,24 @@ function menu(){
     }
     if(UI.GetValue("Script items", "Sections") == 1){
       // Visual
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope crosshair", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Custom scope lines", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 1", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines color 2", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines height", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope lines offset", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable custom scope", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Distance from crosshair", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Size of lines", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color 2", true)
     }
     if(UI.GetValue("Script items", "Sections") == 2){
         //Anti-Aim
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Freestanding", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", true)
@@ -1787,12 +1923,18 @@ function menu(){
       // Misc
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","TP Dist", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Animated thirdperson", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Thirdperson distance", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Training server", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Fps Boost", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","T arms skin", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","CT arms skin", true)
     }
 }
   Cheat.RegisterCallback("Draw","menu");
@@ -1804,13 +1946,13 @@ function Main()
 
 
         UI.AddHotkey("pingspike")
+        UI.AddCheckbox("Peek Helper for AWP/Scout");
         UI.AddHotkey("Weapon Override")
         UI.AddSliderInt("Weapon Mindmg", 0, 130)
         UI.AddCheckbox("Jump Weapons")
         UI.AddSliderInt('Jump scout hitchance', 0, 100)
         UI.AddSliderInt('Jump revolver hitchance', 0, 100)
 
-        UI.AddHotkey("Freestanding"); 
         UI.AddCheckbox("legfucker");    
         UI.AddCheckbox("Low delta");
         UI.AddHotkey("Low delta on key");
@@ -1820,51 +1962,55 @@ function Main()
         UI.AddSliderInt("Send Limit", 0, 16)
         UI.AddSliderInt("Choke Limit", 0, 16)     
 
-        UI.AddCheckbox("Scope crosshair");
-        UI.AddCheckbox("Custom scope lines");
-        UI.AddColorPicker("Scope lines color 1");
-        UI.AddColorPicker("Scope lines color 2");
-        UI.AddSliderInt("Scope lines height" , 0, 500);
-        UI.AddSliderInt("Scope lines offset" , 0, 500);
         UI.AddCheckbox("Desync line");
         UI.AddColorPicker("line color");
-	    UI.AddColorPicker("Arrows color")
-	    UI.AddColorPicker("Selected arrow color")
+        UI.AddColorPicker("Arrows color")
+        UI.AddColorPicker("Selected arrow color")
         UI.AddColorPicker("Selected inverter color")
         UI.AddCheckbox("Display indicators")
-	    UI.AddCheckbox("Display arrows")
+        UI.AddCheckbox("Display arrows")
+        UI.AddCheckbox("Enable clock sync")
         UI.AddHotkey("Left")
         UI.AddHotkey("Right")
-	    UI.AddCheckbox("Nade warning")
+        UI.AddCheckbox ("Enable custom scope");
+        UI.AddSliderInt ("Distance from crosshair", 0, 200);
+        UI.AddSliderInt ("Size of lines", 20, 200);
+        UI.AddColorPicker( "Scope color" );
+        UI.AddColorPicker( "Scope color 2" );
+        UI.AddCheckbox("Nade warning")
 
         UI.AddSliderInt("Aspect ratio", 0, 500 );
-        UI.AddSliderFloat( "TP Dist", 50, 300);
+        UI.AddHotkey("Animated thirdperson")
+        UI.AddSliderInt("Thirdperson distance", 50, 250)
         UI.AddCheckbox("Enable chat logging" );
         UI.AddCheckbox("Clantag");
         UI.AddCheckbox("Safe AWP");
-	    UI.AddCheckbox("Scope on scar");
-	    UI.AddCheckbox("Ragdoll Force");
+        UI.AddCheckbox("Scope on scar");
+        UI.AddCheckbox("Ragdoll Force");
+        UI.AddCheckbox("Training server")
+        UI.AddCheckbox("Fps Boost");
+        UI.AddCheckbox("Enable Custom Arms")
+        UI.AddDropdown("T arms skin", ["Default", "Nigger", "Brown", "Asian", "Red", "Tatoo", "White"])
+        UI.AddDropdown("CT arms skin", ["Default", "Nigger", "Brown", "Asian", "Red", "Tatoo", "White"])
 	
 	//  callbacks
-	Global.RegisterCallback("Draw", "drawind")
-	Global.RegisterCallback("CreateMove", "ManualAA")
-	Global.RegisterCallback("player_connect_full", "player_connect")
+    Global.RegisterCallback("Draw", "drawind")
+    Global.RegisterCallback("CreateMove", "ManualAA")
+    Global.RegisterCallback("player_connect_full", "player_connect")
     Global.RegisterCallback("Draw", "draw")
+    Global.RegisterCallback("Draw", "drawscope")
     Global.RegisterCallback( "FrameStageNotify", "fsn" )
     Global.RegisterCallback("Draw","autoscope")
-    Global.RegisterCallback("CreateMove", "freestanding")
     Global.RegisterCallback('Draw', 'safeAWP')
-    Global.RegisterCallback("Draw", "drawscope")
-	Global.RegisterCallback("ragebot_fire", "ragebot_fire");
-	Global.RegisterCallback("item_purchase", "item_purchase");
+    Global.RegisterCallback("ragebot_fire", "ragebot_fire");
+    Global.RegisterCallback("item_purchase", "item_purchase");
     Global.RegisterCallback("player_hurt", "hitlog");
-	Global.RegisterCallback("Draw", "removelogs");
+    Global.RegisterCallback("Draw", "removelogs");
     Global.RegisterCallback("FrameStageNotify", "ragdollForce");
     Global.RegisterCallback("Draw", "onDraw");
     Global.RegisterCallback("CreateMove", "onCM")
     Global.RegisterCallback("CreateMove", "Low_delta");
-    Global.RegisterCallback("FrameStageNotify", "ChangeDist");
-	Global.RegisterCallback("Draw", "indication")
+    Global.RegisterCallback("Draw", "indication")
     Global.RegisterCallback("Draw", "delta");
     Global.RegisterCallback("CreateMove", "anim");
     Global.RegisterCallback("CreateMove", "fakelags");
@@ -1873,12 +2019,13 @@ function Main()
     Global.RegisterCallback("CreateMove", "legit_aa");
     Global.RegisterCallback("Draw", "onRender");
     Global.RegisterCallback('CreateMove', 'airHC')
-	Global.RegisterCallback("Draw", "DrawNade");
-    Cheat.RegisterCallback("bomb_planted", "bomb_planted");
-    Cheat.RegisterCallback("bomb_defused", "reset");
-    Cheat.RegisterCallback("bomb_exploded", "reset");
-    Cheat.RegisterCallback("round_end", "reset");
-    Global.RegisterCallback("Draw", "menu_check")
+    Global.RegisterCallback("Draw", "DrawNade");
+    Global.RegisterCallback("Draw", "armsColor");
+    Global.RegisterCallback("Draw", "helper");
+    Global.RegisterCallback("Unload", "unloadhelper");
+    Cheat.RegisterCallback("FrameStageNotify", "thirdperson");
     Cheat.RegisterCallback("Unload", "unload");
+    Cheat.RegisterCallback("Draw", "training_server");
+    Cheat.RegisterCallback( "Draw", "fps_boost" );
 }
 Main();
