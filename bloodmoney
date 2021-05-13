@@ -36,7 +36,7 @@ Cheat.PrintColor([255,0,0,255]," ░          ░  ░    ░ ░      ░ ░  
 Cheat.PrintColor([255,0,0,255],"      ░                            ░                      ░                " + '\n')
 username = Cheat.GetUsername();
 Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current version is: v 1.0.9" + '\n');
+Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current version is: v 1.9" + '\n');
 Cheat.PrintColor([255,0,0,255], "Yougame Page: ")
 Cheat.Print("https://yougame.biz/threads/196597/" + '\n')
 Cheat.PrintColor([255,0,0,255], "Creator of script: ")
@@ -47,7 +47,7 @@ Cheat.Print("nijo#1149" + '\n')
 Cheat.PrintColor([255,0,0,255], "Mased for help with coding & other: ")
 Cheat.Print("Mased#2459" + '\n')
 Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9]" + '\n')
+Cheat.PrintColor([145,197,56,255], "[CURRENT UPDATES]" + '\n')
 Cheat.PrintColor([255,0,0,255], "- Add dtpeek helper for awp and scout" +'\n')
 Cheat.PrintColor([255,0,0,255], "- Change animated custom scope to default one" +'\n')
 Cheat.PrintColor([255,0,0,255], "- Add animated thirdperson" +'\n')
