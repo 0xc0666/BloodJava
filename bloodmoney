@@ -1896,6 +1896,7 @@ function menu(){
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", true)
@@ -1921,7 +1922,6 @@ function menu(){
     }
     if(UI.GetValue("Script items", "Sections") == 3){
       // Misc
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Animated thirdperson", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Thirdperson distance", true)
