@@ -2001,6 +2001,7 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable anim thirdperson", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Indicators color", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Warning type", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
    
     if(UI.GetValue("Script items", "Sections") == 0){
       // Rage
