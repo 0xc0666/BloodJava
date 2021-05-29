@@ -23,7 +23,7 @@ const clamp = function(val, min, max) { return Math.min(Math.max(min, val), max)
 var thirdperson_cache = UI.GetValue("Visuals", "WORLD", "View", "Thirdperson")
 var person = 0, turned = 1
 
-//todo list: make menu
+//todo list: menu for js, maybe less fps eating?
 Cheat.Print('\n')
 Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + '\n')
 Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + '\n')
@@ -59,6 +59,7 @@ Cheat.PrintColor([255,0,0,255], "- Add adaptive autoscope based on enemy distanc
 Cheat.PrintColor([255,0,0,255], "- Change indicators a little" +'\n')
 Cheat.PrintColor([255,0,0,255], "- Add hitlogs under crosshair" +'\n')
 Cheat.PrintColor([255,0,0,255], "- Add Dormant aimbot" +'\n')
+Cheat.PrintColor([255,0,0,255], "- Add animations back to skeet scope" +'\n')
 Cheat.Print('\n')
 Cheat.Print('\n')
 Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9]" + '\n')
@@ -81,7 +82,6 @@ Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.8]" + '\n')
 Cheat.PrintColor([255,0,0,255], "- Add tabs for AA, RAGE, VISUALS, MISC" +'\n')
 Cheat.PrintColor([255,0,0,255], "- remove custom scope" +'\n')
 Cheat.PrintColor([255,0,0,255], "- Add custom arms skin" +'\n')
-Cheat.Print('\n')
 Cheat.Print('\n')
 Cheat.Print('\n')
 Cheat.Print('\n')
