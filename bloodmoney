@@ -2343,7 +2343,6 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","T arms skin", false)
@@ -2463,7 +2462,6 @@ function menu(){
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope on scar", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Training server", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Fps Boost", true)
@@ -2529,7 +2527,6 @@ function Main()
         UI.AddCheckbox("Enable chat logging" );
         UI.AddCheckbox("Clantag");
         UI.AddCheckbox("Safe AWP");
-        UI.AddCheckbox("Scope on scar");
         UI.AddCheckbox("Ragdoll Force");
         UI.AddCheckbox("Training server")
         UI.AddCheckbox("Fps Boost");
