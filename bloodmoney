@@ -23,6 +23,7 @@ const clamp = function(val, min, max) { return Math.min(Math.max(min, val), max)
 var thirdperson_cache = UI.GetValue("Visuals", "WORLD", "View", "Thirdperson")
 var person = 0, turned = 1
 
+//todo list: make menu
 Cheat.Print('\n')
 Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + '\n')
 Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + '\n')
