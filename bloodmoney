@@ -3,7 +3,6 @@ var isInverted;
 var time, fillbar, shotsfired;
 var drawLeft = 0; drawNotActive = 1;
 var drawRight = 0
-var leftWasPressed = false; var rightWasPressed = false;
 var safePBackup = false
 var heavy_cache = UI.GetValue("Rage", "HEAVY PISTOL", "Targeting", "Minimum damage")
 var scout_cache = UI.GetValue("Rage", "SCOUT", "Targeting", "Minimum damage")
@@ -23,78 +22,79 @@ const clamp = function(val, min, max) { return Math.min(Math.max(min, val), max)
 var thirdperson_cache = UI.GetValue("Visuals", "WORLD", "View", "Thirdperson")
 var person = 0, turned = 1
 
-//todo list: menu for js, maybe less fps eating?
-Cheat.Print('\n')
-Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + '\n')
-Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + '\n')
-Cheat.PrintColor([255,0,0,255],"▒██▒ ▄██▒██░    ▒██░  ██▒▒██░  ██▒░██   █▌▒ ▓██░ ▒░▒███   ▒▓█    ▄ ▒██▀▀██░" + '\n')
-Cheat.PrintColor([255,0,0,255],"▒██░█▀  ▒██░    ▒██   ██░▒██   ██░░▓█▄   ▌░ ▓██▓ ░ ▒▓█  ▄ ▒▓▓▄ ▄██▒░▓█ ░██ " + '\n')
-Cheat.PrintColor([255,0,0,255],"░▓█  ▀█▓░██████▒░ ████▓▒░░ ████▓▒░░▒████▓   ▒██▒ ░ ░▒████▒▒ ▓███▀ ░░▓█▒░██▓" + '\n')
-Cheat.PrintColor([255,0,0,255],"░▒▓███▀▒░ ▒░▓  ░░ ▒░▒░▒░ ░ ▒░▒░▒░  ▒▒▓  ▒   ▒ ░░   ░░ ▒░ ░░ ░▒ ▒  ░ ▒ ░░▒░▒" + '\n')
-Cheat.PrintColor([255,0,0,255],"▒░▒   ░ ░ ░ ▒  ░  ░ ▒ ▒░   ░ ▒ ▒░  ░ ▒  ▒     ░     ░ ░  ░  ░  ▒    ▒ ░▒░ ░" + '\n')
-Cheat.PrintColor([255,0,0,255]," ░    ░   ░ ░   ░ ░ ░ ▒  ░ ░ ░ ▒   ░ ░  ░   ░         ░   ░         ░  ░░ ░" + '\n')
-Cheat.PrintColor([255,0,0,255]," ░          ░  ░    ░ ░      ░ ░     ░                ░  ░░ ░       ░  ░  ░" + '\n')
-Cheat.PrintColor([255,0,0,255],"      ░                            ░                      ░                " + '\n')
+//todo list: nothing, just nothing
+Cheat.Print("\n")
+Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + "\n")
+Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + "\n")
+Cheat.PrintColor([255,0,0,255],"▒██▒ ▄██▒██░    ▒██░  ██▒▒██░  ██▒░██   █▌▒ ▓██░ ▒░▒███   ▒▓█    ▄ ▒██▀▀██░" + "\n")
+Cheat.PrintColor([255,0,0,255],"▒██░█▀  ▒██░    ▒██   ██░▒██   ██░░▓█▄   ▌░ ▓██▓ ░ ▒▓█  ▄ ▒▓▓▄ ▄██▒░▓█ ░██ " + "\n")
+Cheat.PrintColor([255,0,0,255],"░▓█  ▀█▓░██████▒░ ████▓▒░░ ████▓▒░░▒████▓   ▒██▒ ░ ░▒████▒▒ ▓███▀ ░░▓█▒░██▓" + "\n")
+Cheat.PrintColor([255,0,0,255],"░▒▓███▀▒░ ▒░▓  ░░ ▒░▒░▒░ ░ ▒░▒░▒░  ▒▒▓  ▒   ▒ ░░   ░░ ▒░ ░░ ░▒ ▒  ░ ▒ ░░▒░▒" + "\n")
+Cheat.PrintColor([255,0,0,255],"▒░▒   ░ ░ ░ ▒  ░  ░ ▒ ▒░   ░ ▒ ▒░  ░ ▒  ▒     ░     ░ ░  ░  ░  ▒    ▒ ░▒░ ░" + "\n")
+Cheat.PrintColor([255,0,0,255]," ░    ░   ░ ░   ░ ░ ░ ▒  ░ ░ ░ ▒   ░ ░  ░   ░         ░   ░         ░  ░░ ░" + "\n")
+Cheat.PrintColor([255,0,0,255]," ░          ░  ░    ░ ░      ░ ░     ░                ░  ░░ ░       ░  ░  ░" + "\n")
+Cheat.PrintColor([255,0,0,255],"      ░                            ░                      ░                " + "\n")
 username = Cheat.GetUsername();
-Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current version is: v 1.9.1" + '\n');
+Cheat.Print("\n")
+Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current version is: v 1.9.2 last " + "\n");
 Cheat.PrintColor([255,0,0,255], "Yougame Page: ")
-Cheat.Print("https://yougame.biz/threads/196597/" + '\n')
+Cheat.Print("https://yougame.biz/threads/196597/" + "\n")
+Cheat.PrintColor([255,0,0,255], "Discord: ")
+Cheat.Print("https://discord.gg/TpTnbh3hVr" + "\n")
 Cheat.PrintColor([255,0,0,255], "Creator of script: ")
-Cheat.Print("ber$$erker#8168" + '\n')
-Cheat.PrintColor([255,0,0,255], "BIG THANKS TO:" + '\n')
+Cheat.Print("ber$$erker#8168" + "\n")
+Cheat.PrintColor([255,0,0,255], "BIG THANKS TO:" + "\n")
 Cheat.PrintColor([255,0,0,255], "Sleebu for arm skin changer, adaptive autoscope & other code and moral help: ")
-Cheat.Print("Sleebu#1337" + '\n')
+Cheat.Print("Sleebu#1337" + "\n")
 Cheat.PrintColor([255,0,0,255], "nijo for tabs: ")
-Cheat.Print("nijo#1149" + '\n')
+Cheat.Print("nijo#1149" + "\n")
 Cheat.PrintColor([255,0,0,255], "Mased for help with coding & other: ")
-Cheat.Print("Mased#2459" + '\n')
-Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9.1]" + '\n')
-Cheat.PrintColor([255,0,0,255], "- Add watermark" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add disable fakelags on r8" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Change grenade warning default a little" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add Dodge jitter (looks like adaptive jitter in acidtech)" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add adaptive autoscope based on enemy distance" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Change indicators a little" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add hitlogs under crosshair" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add Dormant aimbot" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add animations back to skeet scope" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add viewmodel in scope" +'\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9]" + '\n')
-Cheat.PrintColor([255,0,0,255], "- Add dtpeek helper for awp and scout" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Change animated custom scope to default one" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add animated thirdperson" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Rework nade warning" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Remove freestanding on key" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add checkbox for clock sync" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add commands for training server" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add fps boost" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add checkbox for animated thirdperson" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Replace visuals with anti-aim in tabs" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Finnaly add enabling other checkboxes on enable function checkbox" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add two types of grenade warning" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add color pickers for all indicators" +'\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.8]" + '\n')
-Cheat.PrintColor([255,0,0,255], "- Add tabs for AA, RAGE, VISUALS, MISC" +'\n')
-Cheat.PrintColor([255,0,0,255], "- remove custom scope" +'\n')
-Cheat.PrintColor([255,0,0,255], "- Add custom arms skin" +'\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
-Cheat.Print('\n')
+Cheat.Print("Mased#2459" + "\n")
+Cheat.Print("\n")
+Cheat.PrintColor([145,197,56,255], "[CURRENT UPDATE V1.9.2 ]" + "\n")
+Cheat.PrintColor([255,0,0,255], "- Rework manual aa" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Rework Minimum damage" +"\n")
+Cheat.PrintColor([255,0,0,255], "- New clantag uff yaa $ blood $" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add force kill damage = force 100 damage on guns" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add grenade prediction" +"\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9.1]" + "\n")
+Cheat.PrintColor([255,0,0,255], "- Add watermark" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add disable fakelags on r8" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Change grenade warning default a little" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add Dodge jitter (looks like adaptive jitter in acidtech)" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add adaptive autoscope based on enemy distance" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Change indicators a little" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add hitlogs under crosshair" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add Dormant aimbot" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add animations back to skeet scope" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add viewmodel in scope" +"\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9]" + "\n")
+Cheat.PrintColor([255,0,0,255], "- Add dtpeek helper for awp and scout" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Change animated custom scope to default one" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add animated thirdperson" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Rework nade warning" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Remove freestanding on key" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add checkbox for clock sync" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add commands for training server" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add fps boost" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add checkbox for animated thirdperson" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Replace visuals with anti-aim in tabs" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Finnaly add enabling other checkboxes on enable function checkbox" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add two types of grenade warning" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Add color pickers for all indicators" +"\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+Cheat.Print("\n")
+
+
 
 function can_shoot(Player){
     var index = Entity.GetWeapon(Player);
@@ -102,7 +102,7 @@ function can_shoot(Player){
     
     var weapon =  classid == 107 || classid == 108 || classid == 96 || classid == 99 || classid ==112 || classid == 155 || classid == 47;
     var clip = Entity.GetProp(index, "DT_BaseCombatWeapon", "m_iClip1");
-    var getbuttons = Entity.GetProp(index,'CBasePlayer', 'm_fFlags' );
+    var getbuttons = Entity.GetProp(index,"CBasePlayer", "m_fFlags" );
     if(weapon || clip == 0 || getbuttons & 1 << 1 ) return false;
     return true;
 }
@@ -187,7 +187,7 @@ function dormantAim(){
     //UserCMD.SetViewAngles(viewangle, true)
     UserCMD.SetAngles(viewangle);
     //UserCMD.SetButtons((1 << 0) | UserCMD.GetButtons())
-    var getbuttons = Entity.GetProp(Entity.GetLocalPlayer(),'CBasePlayer', 'm_fFlags');
+    var getbuttons = Entity.GetProp(Entity.GetLocalPlayer(),"CBasePlayer", "m_fFlags");
     Cheat.ExecuteCommand("+attack");
     dormant_aim_shot = true;
 
@@ -198,7 +198,7 @@ function dormantAim(){
 }
 
 function shoot() {
-    if(dormant_aim_shot) { // don't care who shot
+    if(dormant_aim_shot) { // don"t care who shot
         Cheat.ExecuteCommand("-attack");
         dormant_aim_shot = false;
     }
@@ -226,7 +226,7 @@ var ebanaya_hueta = Math.round(Entity.GetProp(Entity.GetLocalPlayer(), "CPlayerR
   var speed = Math.sqrt(Entity.GetProp(Entity.GetLocalPlayer(), "CBasePlayer", "m_vecVelocity[0]")).toString() //
 color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Watermark color");
 var font = Render.AddFont("Verdana", 7, 400);
-var text = "BLOODTECH | version: 1.9.1 | user: [" + Cheat.GetUsername() + "] | " + fps + " fps | " + ping + " ms / " + server_tickrate + " tick | "+ hours + minutes + seconds + " time";
+var text = "BLOODTECH | version: 1.9.2 | user: [" + Cheat.GetUsername() + "] | " + fps + " fps | " + ping + " ms / " + server_tickrate + " tick | "+ hours + minutes + seconds;
 var w = Render.TextSizeCustom(text, font)[0] + 8;
 var x = Global.GetScreenSize()[0] /2;
 var y = Global.GetScreenSize()[1] /2;
@@ -319,6 +319,8 @@ function drawind()
 {
 	correctLBYMode();
 
+    drawLeft = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Left" )
+    drawRight = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Right" )
 	arrown = UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Arrows color" );
 	arrow = UI.GetColor( "Misc", "JAVASCRIPT", "Script items", "Selected arrow color" );
                   color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Selected inverter color");
@@ -329,7 +331,7 @@ function drawind()
                   isDesyncMode = UI.GetValue("Anti-Aim", "Fake angles", "Fake desync");
 	
 	
-		if(UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Display arrows'))
+		if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Display arrows"))
 		{
                                     if (isDesyncMode == 0){
 
@@ -376,52 +378,36 @@ function drawind()
                                 }
 
 
-function ManualAA(){
-    isLeftActive = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Left" );
-    isRightActive = UI.IsHotkeyActive( "Misc", "JAVASCRIPT", "Script items", "Right" );
-
-    if(isLeftActive && leftWasPressed == false)
+function ManualAA()
+{
+    if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Right"))
     {
-        lastPressed = Global.Tickcount();
-        isNotActive = false;
-        leftWasPressed = true;
-        rightWasPressed = false;
-        drawLeft = 1;
-        drawRight = 0;
-        UI.SetValue( "Anti-Aim", "Rage Anti-Aim", "Yaw offset", -90 );
-    } else if( isLeftActive && leftWasPressed == true && Global.Tickcount() > lastPressed + 16 ) {
-        isNotActive = true;
-        oldTick = Global.Tickcount();
-    }
-
-    if(isRightActive && rightWasPressed == false)
-    {
-        lastPressed = Global.Tickcount();
-        isNotActive = false;
-        leftWasPressed = false;
-        rightWasPressed = true;
-        drawLeft = 0;
-        drawRight = 1;
-        UI.SetValue( "Anti-Aim", "Rage Anti-Aim", "Yaw offset", 90 );
-    
-    } else if(isRightActive && rightWasPressed == true && Global.Tickcount() > lastPressed + 16){
-        isNotActive = true;
-        oldTick = Global.Tickcount();
-    }
-
-    if (isNotActive) {   
-        if (Global.Tickcount() > oldTick + 16)  {
-            rightWasPressed = false;
-            leftWasPressed = false;
-            oldTick = Global.Tickcount();
+        if (original_aa)
+        {
+            yaw_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset");
+            original_aa = false;
         }
-    
-        drawLeft = 0;
-        drawRight = 0;
-        UI.SetValue("Anti-Aim", "Rage Anti-Aim", "Yaw offset", -6 );
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", 90);
     }
-
+    else if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Left"))
+    {
+        if (original_aa)
+        {
+            yaw_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset");
+            original_aa = false;
+        }
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", -90);
+    }
+    else
+    {
+        if (!original_aa)
+        {
+            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", yaw_offset_cache);
+            original_aa = true;
+        }
+    }
 }
+
 function player_connect(){
     lastPressed = Global.Tickcount();
     oldTick = Global.Tickcount();
@@ -442,7 +428,7 @@ function isHActive() {
     return isCheckboxActive1 && isKeyActive1;
 }
 
-function draw() 
+function drawping() 
 {
 	var ping = Math.round(Entity.GetProp(Entity.GetLocalPlayer(), "CPlayerResource", "m_iPing")).toString()
 	var ping2 = Math.floor(Local.Latency()*1000/19.5);
@@ -460,7 +446,6 @@ function draw()
     var fps = Math.floor(1 / Global.Frametime());
 	
 	g_Local_weapon = Entity.GetWeapon(local);
-    weapon_name = Entity.GetName(g_Local_weapon);
     g_Local_classname = Entity.GetClassName(g_Local_weapon);
 
 	var x1 = screen_size[0] / 2;
@@ -649,14 +634,14 @@ function safeAWP() {
 	SlocalPlayerWeaponName = Entity.GetName(SlocalPlayerWeapon)
 
                   if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Safe AWP")) {
-	if (SlocalPlayerWeaponName == 'awp' ) {
-		forceSafePoint = UI.IsHotkeyActive('Rage', 'GENERAL', 'General', 'Force safe point')
+	if (SlocalPlayerWeaponName == "awp" ) {
+		forceSafePoint = UI.IsHotkeyActive("Rage", "GENERAL", "General", "Force safe point")
 		if (!forceSafePoint) {
-			UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
+			UI.ToggleHotkey("Rage", "GENERAL", "General", "Force safe point")
 			safePBackup = true
 		}
 	} else if (safePBackup) {
-		UI.ToggleHotkey('Rage', 'GENERAL', 'General', 'Force safe point')
+		UI.ToggleHotkey("Rage", "GENERAL", "General", "Force safe point")
 		safePBackup = false
 	}
 }
@@ -757,15 +742,15 @@ function drawLogs() {
 }
 
 hitboxes = [
-    'generic',
-    'head',
-    'chest',
-    'stomach',
-    'left arm',
-    'right arm',
-    'left leg',
-    'right leg',
-    '?'
+    "generic",
+    "head",
+    "chest",
+    "stomach",
+    "left arm",
+    "right arm",
+    "left leg",
+    "right leg",
+    "?"
 ];
 var scriptitems = ("Misc", "JAVASCRIPT", "Script items");
 var shots = 0;
@@ -844,7 +829,7 @@ function getHitboxName(index)
     return hitboxName;
 }
 function HitgroupName(index) {
-    return hitboxes[index] || 'body';
+    return hitboxes[index] || "body";
 	                         }
 
 var target = -1;
@@ -871,12 +856,12 @@ function hitlog() {
 
     var hittype = "Hit ";
     me = Entity.GetLocalPlayer();
-    hitbox = Event.GetInt('hitgroup');
+    hitbox = Event.GetInt("hitgroup");
     target_damage = Event.GetInt("dmg_health");
     target_health = Event.GetInt("health");
-    victim = Event.GetInt('userid');
-    attacker = Event.GetInt('attacker');
-    weapon = Event.GetString('weapon');
+    victim = Event.GetInt("userid");
+    attacker = Event.GetInt("attacker");
+    weapon = Event.GetString("weapon");
     victimIndex = Entity.GetEntityFromUserID(victim);
     attackerIndex = Entity.GetEntityFromUserID(attacker);
     name = Entity.GetName(victimIndex);
@@ -1061,8 +1046,6 @@ function get_health(index)
 
 function Low_delta()
 {
-    localplayer_index = Entity.GetLocalPlayer( );
-    
        if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Low delta on key"))
         {
             AntiAim.SetOverride(1);
@@ -1091,7 +1074,7 @@ function setValue(cat, value) {
 }
 
 function isPistol(name) {
-        if (name == "p2000" || weapon_name == "glock 18" || weapon_name == "dual berettas" || weapon_name == "usp s" || weapon_name == "five seven" || weapon_name == "p250" || weapon_name == "tec 9") {
+        if (name == "p2000" || name == "glock 18" || name == "dual berettas" || name == "usp s" || name == "five seven" || name == "p250" || name == "tec 9") {
                 return true
         }
 }
@@ -1103,49 +1086,86 @@ function isHeavyPistol(name) {
 }
 
 function isAutoSniper(name) {
-        if (name == "scar 20" || weapon_name == "g3sg1") {
+        if (name == "scar 20" || name == "g3sg1") {
                 return true
         }
 }
 
+var original_dmg = true
 
 function onCM() {
-        weapon_value = UI.GetValue("Script items", "Weapon Mindmg")
-        weapon_name = Entity.GetName(Entity.GetWeapon(Entity.GetLocalPlayer()))
-
-        if (isActive("Weapon Override") && isPistol(weapon_name)) {
-
-                setValue("PISTOL", weapon_value)
-        } else {
-                setValue("PISTOL", pistol_cache)
+    {
+        am = UI.GetValue("Script items", "Weapon Mindmg")
+        name = Entity.GetName(Entity.GetWeapon(Entity.GetLocalPlayer()))
+        if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Weapon Override"))
+        {
+            if (original_dmg)
+            {
+                pc = UI.GetValue("Rage", "PISTOL", "Minimum damage")
+                hpc = UI.GetValue("Rage", "HEAVY PISTOL", "Minimum damage")
+                scc = UI.GetValue("Rage", "SCOUT", "Minimum damage")
+                awpc = UI.GetValue("Rage", "AWP", "Minimum damage")
+                atc = UI.GetValue("Rage", "AUTOSNIPER", "Minimum damage")
+                original_dmg = false;
+            }
+            if (isPistol(name))
+            {
+            UI.SetValue("Rage", "PISTOL", "Minimum damage", am)
+            }
+            if (isHeavyPistol(name))
+            {
+            UI.SetValue("Rage", "HEAVY PISTOL", "Minimum damage", am)
+            }
+            if (name == "ssg 08")
+            {
+            UI.SetValue("Rage", "SCOUT", "Minimum damage", am)
+            }
+            if (name == "awp")
+            {
+            UI.SetValue("Rage", "AWP", "Minimum damage", am)
+            }
+            if (isAutoSniper(name))
+            {
+            UI.SetValue("Rage", "AUTOSNIPER", "Minimum damage", am)
+            }
         }
-
-        if (isActive("Weapon Override") && isHeavyPistol(weapon_name)) {
-                setValue("HEAVY PISTOL", weapon_value)
-        } else {
-                setValue("HEAVY PISTOL", heavy_cache)
+        else if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items","Force kill damage"))
+        {
+            if (original_dmg)
+            {
+                pc = UI.GetValue("Rage", "PISTOL", "Minimum damage")
+                hpc = UI.GetValue("Rage", "HEAVY PISTOL", "Minimum damage")
+                scc = UI.GetValue("Rage", "SCOUT", "Minimum damage")
+                awpc = UI.GetValue("Rage", "AWP", "Minimum damage")
+                atc = UI.GetValue("Rage", "AUTOSNIPER", "Minimum damage")
+                original_dmg = false;
+            }
+            if (isHeavyPistol(name))
+            {
+            UI.SetValue("Rage", "HEAVY PISTOL", "Minimum damage", 100)
+            }
+            if (name == "ssg 08")
+            {
+            UI.SetValue("Rage", "SCOUT", "Minimum damage", 100)
+            }
+            if (isAutoSniper(name))
+            {
+            UI.SetValue("Rage", "AUTOSNIPER", "Minimum damage", 100)
+            }
         }
-
-        if (isActive("Weapon Override") && weapon_name == "ssg 08") {
-                setValue("SCOUT", weapon_value)
-        } else {
-                setValue("SCOUT", scout_cache)
+        else
+        {
+            if (!original_dmg)
+            {
+                UI.SetValue("Rage", "PISTOL", "Minimum damage", pc)
+                UI.SetValue("Rage", "HEAVY PISTOL", "Minimum damage", hpc)
+                UI.SetValue("Rage", "SCOUT", "Minimum damage", scc)
+                UI.SetValue("Rage", "AWP", "Minimum damage", awpc)
+                UI.SetValue("Rage", "AUTOSNIPER", "Minimum damage", atc)
+                original_dmg = true;
+            }
         }
-
-        if (isActive("Weapon Override") && weapon_name == "awp") {
-                setValue("AWP", weapon_value)
-        } else {
-                setValue("AWP", awp_cache)
-        }
-
-        if (isActive("Weapon Override") && isAutoSniper(weapon_name)) {
-
-                setValue("AUTOSNIPER", weapon_value)
-        } else {
-                setValue("AUTOSNIPER", auto_cache)
-        }
-
-
+    }
 }
 
 alpha_main = 0
@@ -1160,6 +1180,10 @@ add_duck   = 0
 value_damage = 0
 alpha_damage = 0
 add_damage   = 0
+
+value_kdamage = 0
+alpha_kdamage = 0
+add_kdamage   = 0
 
 value_FS = 0
 alpha_FS = 0
@@ -1198,6 +1222,10 @@ add_hs   = 0
 value_ping = 0
 alpha_ping = 0
 add_ping   = 0
+
+value_DA = 0
+alpha_DA = 0
+add_DA   = 0
 
 value_arc = 0
 alpha_anim_state = false
@@ -1369,10 +1397,12 @@ function indication() {
    islowdelta = UI.IsHotkeyActive("Script items", "Low delta on key")
    isHideShot = UI.IsHotkeyActive("Rage", "Exploits", "Hide shots") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
    isDamageOverride = UI.IsHotkeyActive("Script items", "Weapon Override")
+   isKillOverride = UI.IsHotkeyActive("Script items", "Force kill damage")
    isForceBody = UI.IsHotkeyActive("Rage", "General", "Force body aim")
    isFakeDuck = UI.IsHotkeyActive("Anti-Aim", "Extra", "Fake duck") && !(Entity.GetProp(Entity.GetGameRulesProxy(), "CCSGameRulesProxy", "m_bIsValveDS" ))
    isAutoPick = UI.IsHotkeyActive("Misc", "GENERAL", "Movement","Auto peek")
    isPing = UI.IsHotkeyActive("Script items", "pingspike")
+   isDA = UI.IsHotkeyActive("Script items", "Dormant Aimbot")
    isLegitAA = (UI.GetValue("Anti-aim", "Extra", "Pitch") == 0 ? true : false )
    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if (UI.GetValue("Script items", "Desync line", true))
@@ -1399,7 +1429,7 @@ if (UI.GetValue("Script items", "Desync line", true))
    if (Entity.IsAlive(player) && alpha_main != 255 && !Input.IsKeyPressed(0x09) )
       alpha_main = clamp(alpha_main + fade_factor * 100, 0, 255)
    //buttons
-   	if(UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Display indicators' ))
+   	if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Display indicators" ))
 	{
    //Damage animation
     if (isDamageOverride && alpha_damage != 1 && alpha_main == 255){
@@ -1413,7 +1443,20 @@ if (UI.GetValue("Script items", "Desync line", true))
        add_damage = clamp(add_damage - fade_factor * add_damage, 0, 1)
     }
     if(alpha_damage < 0.01) alpha_damage = 0
-    if(add_damage < 0.01)   add_damage   = 0
+    if(add_damage < 0.01)   add_damage   = 0   
+    //kdamage animation
+    if (isKillOverride && alpha_kdamage != 1 && alpha_main == 255){
+       value_kdamage = clamp(value_kdamage + fade_factor, 0, 1.0)
+       alpha_kdamage = clamp(alpha_kdamage + fade_factor * value_kdamage, 0, 1.0)
+       add_kdamage   = clamp(add_kdamage + fade_factor * value_kdamage, 0, 1.0)
+    }
+    if (!isKillOverride && alpha_kdamage != 0 || alpha_main != 255){
+       value_kdamage = clamp(value_kdamage - fade_factor, 0, 1)
+       alpha_kdamage = clamp(alpha_kdamage - fade_factor * alpha_kdamage, 0, 1)
+       add_kdamage = clamp(add_kdamage - fade_factor * add_kdamage, 0, 1)
+    }
+    if(alpha_kdamage < 0.01) alpha_kdamage = 0
+    if(add_kdamage < 0.01)   add_kdamage   = 0
    //Baim animation
     if (isForceBody && alpha_BAIM != 1 && alpha_main == 255){
        value_BAIM = clamp(value_BAIM + fade_factor, 0, 1.0)
@@ -1466,6 +1509,19 @@ if (UI.GetValue("Script items", "Desync line", true))
    }
       if(alpha_ping < 0.01) alpha_ping = 0
       if(add_ping < 0.01)   add_ping   = 0
+    //DA animation
+   if (isDA && alpha_DA != 1 && alpha_main == 255){
+    value_DA = clamp(value_DA + fade_factor, 0, 1)
+    alpha_DA = clamp(alpha_DA + fade_factor * value_DA, 0, 1)
+    add_DA   = clamp(add_DA   + fade_factor * value_DA, 0, 1)
+ }
+ if (!isDA && alpha_DA != 0 || alpha_main != 255){
+    value_DA = clamp(value_DA - fade_factor, 0, 1)
+    alpha_DA = clamp(alpha_DA - fade_factor * alpha_DA, 0, 1)
+    add_DA   = clamp(add_DA   - fade_factor * add_DA, 0, 1)
+ }
+    if(alpha_DA < 0.01) alpha_DA = 0
+    if(add_DA < 0.01)   add_DA   = 0
    //ANIM animation
     if (!isDoubletap && !isHideShot && alpha_main == 255) {
        add_anim = clamp(add_anim + fade_factor, 0, 1)
@@ -1703,11 +1759,23 @@ dt_color = [red_dt ,255 * green_dt,0,255 * alpha_dt]
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "ping", [0, 0, 0, alpha_ping * 255], 3);
       Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "ping", [141, 140, 197, alpha_ping * 255], 3);
    }
+    if (alpha_DA > 0) {
+    add_y = add_y + add_DA * add_factor ;
+ 
+    Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "dormant", [0, 0, 0, alpha_DA * 255], 3);
+    Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "dormant", [141, 140, 197, alpha_DA * 255], 3);
+    }
     if (alpha_damage > 0) {
        add_y = add_y + add_damage * add_factor;
    
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "dmg", [0, 0, 0, alpha_damage * 255], 3);
        Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "dmg", [158, 181, 113, alpha_damage * 255], 3);
+    }
+    if (alpha_kdamage > 0) {
+        add_y = add_y + add_kdamage * add_factor;
+    
+        Render.String(screen_size[0] / 2, screen_size[1] / 2 + 1 + add_y, 1, "kill dmg", [0, 0, 0, alpha_kdamage * 255], 3);
+        Render.String(screen_size[0] / 2, screen_size[1] / 2 + add_y, 1, "kill dmg", [158, 181, 113, alpha_kdamage * 255], 3);
     }
     if (alpha_BAIM > 0) {
        add_y = add_y + add_BAIM * add_factor;
@@ -1804,18 +1872,20 @@ function roundstart()
     tickcount = 0
 }
 
+var original_naa = true
+
 function legit_aa()
 {
     if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Legit AA Key"))
     {
-        if (original_aa)
+        if (original_naa)
         {
             restrictions_cache = UI.GetValue("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions");
             hiderealangle_cache = UI.GetValue ("Anti-Aim", "Fake angles", "Hide real angle");
             yaw_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset");
             jitter_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset");
             pitch_cache = UI.GetValue ("Anti-Aim", "Extra", "Pitch");
-            original_aa = false;
+            original_naa = false;
         }
         UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", 0);
         UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", true);
@@ -1825,14 +1895,14 @@ function legit_aa()
     }
     else
     {
-        if (!original_aa)
+        if (!original_naa)
         {
             UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", restrictions_cache);
             UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", hiderealangle_cache);
             UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", yaw_offset_cache);
             UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset", jitter_offset_cache);
             UI.SetValue ("Anti-Aim", "Extra", "Pitch", pitch_cache);
-            original_aa = true;
+            original_naa = true;
         }
     }
 }
@@ -1846,46 +1916,30 @@ var time = parseInt((Globals.Curtime() * speed))
 if (time != lasttime)
 {
 if (tag == 1) {
-switch ((time) % 38) {
+switch ((time) % 22) {
 
-case 1: { Local.SetClanTag(""); break; }
-case 2: { Local.SetClanTag("^"); break; }
-case 3: { Local.SetClanTag("B"); break; }
-case 4: { Local.SetClanTag("B$"); break; }
-case 5: { Local.SetClanTag("Bl"); break; }
-case 6: { Local.SetClanTag("Bl{}"); break; }
-case 7: { Local.SetClanTag("Blo"); break; }
-case 8: { Local.SetClanTag("Blo{}"); break; }
-case 9: { Local.SetClanTag("Bloo"); break; }
-case 10: { Local.SetClanTag("Bloo%"); break; }
-case 11: { Local.SetClanTag("Blood"); break; }
-case 12: { Local.SetClanTag("Blood_"); break; }
-case 13: { Local.SetClanTag("BloodT"); break; }
-case 14: { Local.SetClanTag("BloodT@"); break; }
-case 15: { Local.SetClanTag("BloodTe"); break; }
-case 16: { Local.SetClanTag("BloodTe("); break; }
-case 17: { Local.SetClanTag("BloodTec"); break; }
-case 18: { Local.SetClanTag("BloodTec|"); break; }
-case 19: { Local.SetClanTag("BloodTech"); break; }
-case 20: { Local.SetClanTag("BloodTech"); break; }
-case 21: { Local.SetClanTag("^loodTech"); break; }
-case 22: { Local.SetClanTag("loodTech"); break; }
-case 23: { Local.SetClanTag("$oodTech"); break; }
-case 24: { Local.SetClanTag("oodTech"); break; }
-case 25: { Local.SetClanTag("{}odTech"); break; }
-case 26: { Local.SetClanTag("odTech"); break; }
-case 27: { Local.SetClanTag("{}dTech"); break; }
-case 28: { Local.SetClanTag("dTech"); break; }
-case 29: { Local.SetClanTag("%Tech"); break; }
-case 30: { Local.SetClanTag("Tech"); break; }
-case 31: { Local.SetClanTag("_ech"); break; }
-case 32: { Local.SetClanTag("ech"); break; }
-case 33: { Local.SetClanTag("@ch"); break; }
-case 34: { Local.SetClanTag("ch"); break; }
-case 35: { Local.SetClanTag("(h"); break; }
-case 36: { Local.SetClanTag("h"); break; }
-case 37: { Local.SetClanTag("|"); break; }
-case 38: { Local.SetClanTag(""); break; }
+case 1:  { Local.SetClanTag("$       "); break; }
+case 2:  { Local.SetClanTag("$ |8    "); break; }
+case 3:  { Local.SetClanTag("$ b     "); break; }
+case 4:  { Local.SetClanTag("$ b|_   "); break; }
+case 5:  { Local.SetClanTag("$ bl    "); break; }
+case 6:  { Local.SetClanTag("$ bl{}  "); break; }
+case 7:  { Local.SetClanTag("$ blo   "); break; }
+case 8:  { Local.SetClanTag("$ blo{} "); break; }
+case 9:  { Local.SetClanTag("$ bloo  "); break; }
+case 10: { Local.SetClanTag("$ blooc|"); break; }
+case 11: { Local.SetClanTag("$ blood "); break; }
+case 12: { Local.SetClanTag("$ blood "); break; }
+case 13: { Local.SetClanTag("$ blooc|"); break; }
+case 14: { Local.SetClanTag("$ bloo  "); break; }
+case 15: { Local.SetClanTag("$ blo{} "); break; }
+case 16: { Local.SetClanTag("$ blo   "); break; }
+case 17: { Local.SetClanTag("$ bl{}  "); break; }
+case 18: { Local.SetClanTag("$ bl    "); break; }
+case 19: { Local.SetClanTag("$ b|_   "); break; }
+case 20: { Local.SetClanTag("$ b     "); break; }
+case 21: { Local.SetClanTag("$ |8    "); break; }
+case 22: { Local.SetClanTag("$       "); break; }
 }
 }
 }
@@ -1893,27 +1947,27 @@ lasttime = time;
 }
 
 
-var scoutCach = UI.GetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance')
-var revolverCach = UI.GetValue('Rage', 'HEAVY PISTOl', 'Accuracy', 'Hitchance')
+var scoutCach = UI.GetValue("Rage", "SCOUT", "Accuracy", "Hitchance")
+var revolverCach = UI.GetValue("Rage", "HEAVY PISTOl", "Accuracy", "Hitchance")
 function airHC() {
-    var scoutAir = UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Jump scout hitchance')
-    var revolverAir = UI.GetValue('Misc', 'JAVASCRIPT', 'Script items', 'Jump revolver hitchance')
+    var scoutAir = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump scout hitchance")
+    var revolverAir = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump revolver hitchance")
    
     var local = Entity.GetLocalPlayer()
     var localWeapon = Entity.GetWeapon(local)
     var localWeaponName = Entity.GetName(localWeapon)
-    var inAir = Entity.GetProp(local, 'CBasePlayer', 'm_hGroundEntity')
+    var inAir = Entity.GetProp(local, "CBasePlayer", "m_hGroundEntity")
 if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump scout/r8"))
 {
-    if (localWeaponName == 'r8 revolver' && inAir =='m_hGroundEntity') {
-        UI.SetValue('Rage', 'HEAVY PISTOL', 'Accuracy', 'Hitchance', revolverAir)
+    if (localWeaponName == "r8 revolver" && inAir =="m_hGroundEntity") {
+        UI.SetValue("Rage", "HEAVY PISTOL", "Accuracy", "Hitchance", revolverAir)
     } else {
-        UI.SetValue('Rage', 'HEAVY PISTOL', 'Accuracy', 'Hitchance', revolverCach)
+        UI.SetValue("Rage", "HEAVY PISTOL", "Accuracy", "Hitchance", revolverCach)
     }
-    if (localWeaponName == 'ssg 08' && inAir == 'm_hGroundEntity') {
-        UI.SetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance', scoutAir)
+    if (localWeaponName == "ssg 08" && inAir == "m_hGroundEntity") {
+        UI.SetValue("Rage", "SCOUT", "Accuracy", "Hitchance", scoutAir)
     } else {
-        UI.SetValue('Rage', 'SCOUT', 'Accuracy', 'Hitchance', scoutCach)
+        UI.SetValue("Rage", "SCOUT", "Accuracy", "Hitchance", scoutCach)
     }
   }
 }
@@ -1923,7 +1977,7 @@ function r8fakelag()
     var local = Entity.GetLocalPlayer()
     var localWeapon = Entity.GetWeapon(local)
     var localWeaponName = Entity.GetName(localWeapon)
-    if (localWeaponName == 'r8 revolver' && UI.GetValue("Script items", "Disable fakelags on r8") == 1)
+    if (localWeaponName == "r8 revolver" && UI.GetValue("Script items", "Disable fakelags on r8") == 1)
     {
     UI.SetValue("Fake-Lag", "Enabled", 0)
     }
@@ -1932,171 +1986,303 @@ function r8fakelag()
     UI.SetValue("Fake-Lag", "Enabled", 1)
     }
 }
-function ImportGrenades()
-{
-    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
-    for (e in grenades)
-    {
-        pass = false;
-        for (g in positions)
-        {
-            if (positions[g][0] == grenades[e])
-            {
-                pass = true;
-                continue;
-            }
-        }
-        if (pass)
-            continue;
 
-        positions.push([grenades[e], Globals.Curtime(), [Entity.GetRenderOrigin(grenades[e])], Globals.Curtime()]);
-    }
-}
+var lines = []
+var hits = []
+var pmolotov = []
+var tracer_lines = []
+var setid = "m_nForceBone"
+var nbody = "m_nBody"
+var name2 = "CBaseCSGrenadeProjectile"
+var id = 1
 
-
-const clr = [
-    text = [ 240, 240, 240, 255 ],
-    main = [ 38, 38, 38, 160 ],
-    back = [ 32, 32, 32, 255 ],
-    high = [ 48, 48, 48, 255 ],
-    red  = [ 240, 41, 41, 255 ],
-]
-
-var positions = [];
-var trace = [];
-var render = [];
-var local = Entity.GetLocalPlayer();
-
-function Clamp(v, min, max)
-{
-    return Math.max(Math.min(v, max), min);
-}
-
-function GrenadeWarning()
-{
-    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
-
-    if (!Entity.IsAlive(local)) { return; }
-    
-    for (g in grenades) {
-        for (var i = 0; i < grenades.length; i++) {
-            
-            var g = grenades[i];
-            var isInferno = Entity.GetClassID(g) === 100;
-            var isHeGrenade = Entity.GetClassID(g) === 9;
-            function DistanceInFeets (origin, destination) {
-                var sub = [destination[0] - origin[0], destination[1] - origin[1], destination[2] - origin[2]];
-                return Math.round(Math.sqrt(sub[0] ** 2 + sub[1] ** 2 + sub[2] ** 2) / 12);
-            }
-            var destination = Entity.GetRenderOrigin(g);
-            var origin = Entity.GetEyePosition(local);
-            var distance = DistanceInFeets(origin, destination);
-            var screen = Render.WorldToScreen(destination);
-            var isSafe = distance > (isInferno ? 15 : 20) || trace[1] < 0.61;
-            if (distance > 256) { continue; }
-            if (isHeGrenade && Entity.GetProp (g, "CBaseCSGrenadeProjectile", "m_nExplodeEffectTickBegin")) { continue; }
-            font = Render.AddFont("Small fonts", 7, 100);
-            const warning_stroke = true;
-            Render.FilledCircle( screen[0], screen[1] + 36, 15, [ 255, 255, 255, 90 ])
-            Render.Circle(screen[0], screen[1] + 36, 15, !isSafe && warning_stroke ? [ 240, 41, 41, 255 ] : [ 200, 200, 200, 255 ])
-            Render.String(screen[0] - 8, screen[1] + 27, 0, isHeGrenade ? "I" : "K", [ 240, 240, 240, 255 ], 5);
+function grenade_warning_tick() {
+    entities = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114));
+    for (var i = 0; i < entities.length; i++) {
+        entity = entities[i]
+        if (Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_nExplodeEffectTickBegin') == 0) {
+            Entity.SetProp(entity, name2, nbody, Entity.GetProp(entity, name2, nbody) + 1)
         }
     }
-}
-
-function enQWarn()
-{
-    var grenades = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114).concat(Entity.GetEntitiesByClassID(100)));
-
-    if (!Entity.IsAlive(local)) { return; }
-  
-    for (g in grenades) {
-        for (var i = 0; i < grenades.length; i++) {
-          
-            var g = grenades[i];
-            var isInferno = Entity.GetClassID(g) === 100;
-            var isHeGrenade = Entity.GetClassID(g) === 9;
-
-            /* --------------- */
-
-            function DistanceInFeets (origin, destination) {
-                var sub = [destination[0] - origin[0], destination[1] - origin[1], destination[2] - origin[2]];
-                return Math.round(Math.sqrt(sub[0] ** 2 + sub[1] ** 2 + sub[2] ** 2) / 12);
-                //return Math.round(sub[0] + sub[1] + sub[2]); // Для измерения в юнитах
+    if (entities.length == 0) {
+        hits = []
+        lines = []
+        pmolotov = []
+    }
+    entities = Entity.GetEntitiesByClassID(9)
+    for (var i = 0; i < entities.length; i++) {
+        entity = entities[i]
+        var vel = Entity.GetProp(entity, 'CBaseGrenade', 'm_vecVelocity');
+        if (Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime') != Math.round(vel[0]) && Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_nExplodeEffectTickBegin') == 0) {
+            Entity.SetProp(entity, 'CBaseCSGrenade', 'm_flAnimTime', Math.round(vel[0]))
+            var mx = vel[0] * 0.015
+            var my = vel[2] * 0.015
+            var mz = vel[1] * 0.015
+            Entity.SetProp(entity, 'CBaseCSGrenadeProjectile', setid, id)
+            id++
+            var x = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[0]
+            var y = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[2]
+            var z = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[1]
+            var hittable = false
+            for (var i = 0; i < 109 - Entity.GetProp(entity, name2, nbody); i++) {
+                my = my - 0.0712
+                var hit = []
+                var hitbox = [
+                    [
+                        [x - 2, z - 2, y - 2],
+                        [x + mx - 2, z + mz - 2, y + my - 2]
+                    ],
+                    [
+                        [x - 2, z - 2, y + 2],
+                        [x + mx - 2, z + mz - 2, y + my + 2]
+                    ],
+                    [
+                        [x + 2, z + 2, y - 2],
+                        [x + mx + 2, z + mz + 2, y + my - 2]
+                    ],
+                    [
+                        [x + 2, z + 2, y + 2],
+                        [x + mx + 2, z + mz + 2, y + my + 2]
+                    ]
+                ]
+                for (var v = 0; v < hitbox.length; v++) {
+                    var h = hitbox[v]
+                    var res = 0
+                    res = Trace.Line(entity, h[0], h[1])[1]
+                    if (res != 1) {
+                        var ny = h[0][2] + 10
+                        var nx = h[1][0]
+                        var nz = h[1][1]
+                        var fny = h[0][2]
+                        var fnx = h[1][0]
+                        var fnz = h[1][1]
+                        vres = Trace.Line(entity, [fnx, fnz, fny], [nx, nz, ny])[1]
+                        var start = [x, z, y]
+                        var end = [x - mx, z - mz, y - 30]
+                        vres1 = Trace.Line(entity, start, end)[1]
+                        if (vres == 1 && vres1 == 1) {
+                            hittable = true
+                            hit = [x + mx * (res), z + mz * (res), y + my * (res)]
+                            break;
+                        } else {
+                            my = my * -0.45
+                            mx = mx * 0.45
+                            mz = mz * 0.45
+                            break
+                        }
+                    }
+                }
+                if (hit.length > 1) {
+                    hits.push([
+                        [hit[0], hit[1], hit[2]], Globals.Tickcount() + i, false, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime'), Globals.Tickcount()
+                    ])
+                    break;
+                }
+               lines.push([
+                        [x, z, y],
+                        [x + mx, z + mz, y + my], Globals.Tickcount() + i, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime')
+                    ])
+                x = x + mx
+                y = y + my
+                z = z + mz
             }
-
-            /* --------------- */
-
-            var destination = Entity.GetRenderOrigin(g);
-            var origin = Entity.GetEyePosition(local);
-            var distance = DistanceInFeets(origin, destination);
-            var screen = Render.WorldToScreen(destination);
-            var isSafe = distance > (isInferno ? 15 : 20) || trace[1] < 0.61;
-
-            /* --------------- */
-
-            if (distance > 256) { continue; }
-
-            if (isHeGrenade && Entity.GetProp (g, "CBaseCSGrenadeProjectile", "m_nExplodeEffectTickBegin")) { continue; }
-
-            /* --------------- */
-
-            Render.FilledRect (screen[0] + 16, screen[1] - 12, 48, 24, clr[1]);
-
-            Render.Polygon ([ [ screen[0] + 8,  screen[1] - 1 ], [ screen[0] + 16, screen[1] - 8 ], [ screen[0] + 16, screen[1] + 8 ] ], clr[1]);
-
-            Render.String (screen[0] + 36, screen[1] - 5, 0, Math.round(distance / 3.28) + " m", clr[0], 3);
-            Render.String (screen[0] + 20, screen[1] - 6, 0, isHeGrenade ? "I" : "K", isSafe ? clr[0] : clr[4], 6);
-
-            /* --------------- */
-
-            const warning_stroke = false; // true для красной обводки при опасности
-
-            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] - 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 8, screen[1], screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-
-            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 16, screen[1] - 7, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 16, screen[1] + 8, !isSafe && warning_stroke ? clr[4] : clr[3])
-
-            Render.Line ( screen[0] + 16, screen[1] - 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 16, screen[1] + 12, screen[0] + 64, screen[1] + 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-            Render.Line ( screen[0] + 64, screen[1] + 12, screen[0] + 64, screen[1] - 12, !isSafe && warning_stroke ? clr[4] : clr[3])
-          
-            /* --------------- */
-
-            if (isInferno)
-            {
-                var time = Entity.GetProp(g, "CInferno", "m_nFireEffectTickBegin") * Globals.TickInterval();
-                var factor = Clamp(((time + 7) - Globals.Curtime()) / 7, 0, 7);
-  
-                Render.FilledRect(screen[0] + 16, screen[1] + 10, 48, 2, clr[2]);
-                Render.FilledRect(screen[0] + 16, screen[1] + 10, Math.trunc(factor * 48), 2, clr[4]);
+            if (!hittable) {
+                hits.push([
+                    [x, z, y], Globals.Tickcount() + i, false, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime'), Globals.Tickcount()
+                ])
             }
         }
     }
-}
+    entities = Entity.GetEntitiesByClassID(114)
+    for (var i = 0; i < entities.length; i++) {
+        entity = entities[i]
 
-/* ------------------------------------------------------ */
-
-function DrawNade()
-{
-if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Nade warning") == true)
-  {
-if (UI.GetValue("Script items", "Warning type") == 0)
-    {
-    ImportGrenades();
-    GrenadeWarning();
-    };
-if (UI.GetValue("Script items", "Warning type") == 1)
-    {
-    ImportGrenades();
-    enQWarn();
+        var vel = Entity.GetProp(entity, 'CBaseGrenade', 'm_vecVelocity');
+        if (Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime') != Math.round(vel[0]) && Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_nExplodeEffectTickBegin') == 0) {
+            Entity.SetProp(entity, 'CBaseCSGrenade', 'm_flAnimTime', Math.round(vel[0]))
+            var mx = vel[0] * 0.015
+            var my = vel[2] * 0.015
+            var mz = vel[1] * 0.015
+            Entity.SetProp(entity, 'CBaseCSGrenadeProjectile', setid, id)
+            id++
+            var predicted
+            var x = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[0]
+            var y = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[2]
+            var z = Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_vecOrigin')[1]
+            var hittable = false
+            for (var i = 0; i < 130 - Entity.GetProp(entity, name2, nbody); i++) {
+                my = my - 0.0712
+                var hit = []
+                var hitbox = [
+                    [
+                        [x - 2, z - 2, y - 2],
+                        [x + mx - 2, z + mz - 2, y + my - 2]
+                    ],
+                    [
+                        [x - 2, z - 2, y + 2],
+                        [x + mx - 2, z + mz - 2, y + my + 2]
+                    ],
+                    [
+                        [x + 2, z + 2, y - 2],
+                        [x + mx + 2, z + mz + 2, y + my - 2]
+                    ],
+                    [
+                        [x + 2, z + 2, y + 2],
+                        [x + mx + 2, z + mz + 2, y + my + 2]
+                    ]
+                ]
+                for (var v = 0; v < hitbox.length; v++) {
+                    var h = hitbox[v]
+                    var res = 0
+                    res = Trace.Line(entity, h[0], h[1])[1]
+                    if (res != 1) {
+                        var ny = h[0][2] + 10
+                        var nx = h[1][0]
+                        var nz = h[1][1]
+                        var fny = h[0][2]
+                        var fnx = h[1][0]
+                        var fnz = h[1][1]
+                        vres = Trace.Line(entity, [fnx, fnz, fny], [nx, nz, ny])[1]
+                        var start = [x, z, y]
+                        var end = [x - mx, z - mz, y - 20]
+                        vres1 = Trace.Line(entity, start, end)[1]
+                        if (vres == 1 && vres1 == 1) {
+                            hittable = true
+                            hit = [x + mx * (res), z + mz * (res), y + my * (res)]
+                            break;
+                        } else {
+                            if (vres1 != 1) {
+                                pmolotov.push([
+                                    [x, z, y], Globals.Tickcount(), Globals.Tickcount() + i, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime')
+                                ])
+                                hits.push([
+                                    [x, z, y], Globals.Tickcount() + i, true, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime')
+                                ])
+                                return
+                            }
+                            my = my * -0.45
+                            mx = mx * 0.45
+                            mz = mz * 0.45
+                            break
+                        }
+                    }
+                }
+                if (hit.length > 1) {
+                    hits.push([
+                        [hit[0], hit[1], hit[2]], Globals.Tickcount() + i, true, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime'), Globals.Tickcount()
+                    ])
+                    break;
+                }
+               lines.push([
+                        [x, z, y],
+                        [x + mx, z + mz, y + my], Globals.Tickcount() + i, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime')
+                    ])
+                x = x + mx
+                y = y + my
+                z = z + mz
+            }
+            if (!hittable) {
+                hits.push([
+                    [x, z, y], Globals.Tickcount() + i, true, Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime'), Globals.Tickcount()
+                ])
+            }
+        }
     }
-  }
+    const contains = function(arr, contain) {
+        for (var i = 0; i < arr.length; i++) {
+            var object = arr[i]
+            if (object == contain) {
+                return true
+            }
+        }
+        return false;
+    }
+    entities = Entity.GetEntitiesByClassID(9).concat(Entity.GetEntitiesByClassID(114));
+    var array = []
+    for (var i = 0; i < entities.length; i++) {
+        entity = entities[i]
+        if (Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_nExplodeEffectTickBegin') == 0) {
+            array.push(Entity.GetProp(entity, 'CBaseCSGrenadeProjectile', 'm_flAnimTime'))
+        }
+    }
+    for (var i = 0; i < hits.length; i++) {
+        var object = hits[i]
+        if (!contains(array, object[3])) {
+            hits[i][1] = 0;
+        }
+    }
+    for (var i = 0; i < lines.length; i++) {
+        var object = lines[i]
+        if (!contains(array, object[3])) {
+            lines[i][2] = 0;
+        }
+    }
+    for (var i = 0; i < pmolotov.length; i++) {
+        var object = pmolotov[i]
+        if (!contains(array, object[3])) {
+            pmolotov[i][2] = 1;
+            pmolotov[i][1] = -5;
+        }
+    }
 }
 
+function draw_warning(xzy) {
+    if (UI.GetValue("Script items", "Grenade prediction")) 
+    {
+    var color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Predict color");
+    const draw_ind = function(x, y, alpha, str, oof, xzy) {
+        Render.FilledCircle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
+        Render.Circle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
+        Render.StringCustom(x + 1, y - 11, oof ? (18 + Globals.Tickcount() / 7 % 5) : 10, str, [255, 255, 255, alpha], 5);
+    }
+    var x = Render.WorldToScreen(xzy[0])[0]
+    var y = Render.WorldToScreen(xzy[0])[1]
+    var str = xzy[2] ? "K" : "I";
+    var alpha = (xzy[1] - Globals.Tickcount()) * 2
+    if (alpha < 1)
+        return;
+    size = Render.GetScreenSize()
 
 
+    if (x < 0 || x > size[0] || y > size[1] || y < 0) {
+        var yaw = (Local.GetViewAngles()[1])
+            var myorig = Entity.GetRenderOrigin(Entity.GetLocalPlayer())
+            var orig = xzy[0]
+            var x = orig[0] - myorig[0]
+            var z = orig[1] - myorig[1]
+            var atan = Math.atan2(z, x)
+            var deg = atan * (180 / Math.PI);
+            deg -= yaw + 90;
+            atan = deg / 180 * Math.PI;
+            var cos = Math.cos(atan) * -1
+            var sin = Math.sin(atan)
+            draw_ind(size[0] / 2 + cos * 150, size[1] / 2 + sin * 150, 255, str, true, xzy[0])
+    } else {
+        draw_ind(x, y, 255, str, false, xzy[0])
+        }
+    }
+}
+
+function draw() {
+    if (UI.GetValue("Script items", "Grenade prediction"))
+    {
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i]
+        var alpha = (line[2] - Globals.Tickcount())
+        var color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Line color");
+        if (alpha > 0) {
+            size = Render.GetScreenSize()
+            if (Render.WorldToScreen(line[1])[1] > 0 && Render.WorldToScreen(line[0])[1] > 0 && Render.WorldToScreen(line[1])[1] < size[1] && Render.WorldToScreen(line[0])[1] < size[1]) {
+                Render.Line(Render.WorldToScreen(line[0])[0], Render.WorldToScreen(line[0])[1], Render.WorldToScreen(line[1])[0], Render.WorldToScreen(line[1])[1], color)
+            }
+        }
+    }
+    for (var i = 0; i < hits.length; i++) {
+        var line = hits[i]
+        draw_warning(line)
+        }
+    }
+}
 
 function armsColor()
 {
@@ -2114,12 +2300,12 @@ function armsColor()
 }
 
 function get_weapon(entity) {
-    if (Entity.GetName(Entity.GetWeapon(entity)) == 'g3sg1' || Entity.GetName(Entity.GetWeapon(entity)) == 'scar 20') return 'auto';
-    else if (Entity.GetName(Entity.GetWeapon(entity)) == 'awp') return 'awp';
-    else if (Entity.GetName(Entity.GetWeapon(entity)) == 'desert eagle') return 'deagle';
-    else if (Entity.GetName(Entity.GetWeapon(entity)) == 'r8 revolver') return 'revolver';
-    else if (Entity.GetName(Entity.GetWeapon(entity)) == 'ssg 08') return 'scout';
-    else return 'other';
+    if (Entity.GetName(Entity.GetWeapon(entity)) == "g3sg1" || Entity.GetName(Entity.GetWeapon(entity)) == "scar 20") return "auto";
+    else if (Entity.GetName(Entity.GetWeapon(entity)) == "awp") return "awp";
+    else if (Entity.GetName(Entity.GetWeapon(entity)) == "desert eagle") return "deagle";
+    else if (Entity.GetName(Entity.GetWeapon(entity)) == "r8 revolver") return "revolver";
+    else if (Entity.GetName(Entity.GetWeapon(entity)) == "ssg 08") return "scout";
+    else return "other";
 }
 should_draw = false
 const reset = function(){
@@ -2321,8 +2507,8 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout/r8", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump scout hitchance', false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump revolver hitchance', false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout hitchance", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump revolver hitchance", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", false)
@@ -2370,6 +2556,10 @@ function menu(){
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dodge jitter", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dormant Aimbot", false)
     UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Adaptive autoscope", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Force kill damage", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Grenade prediction", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Predict color", false)
+    UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Line color", false)
    
     if(UI.GetValue("Script items", "Sections") == 0){
       // Rage
@@ -2378,13 +2568,14 @@ function menu(){
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Adaptive autoscope", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dormant Aimbot", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Force kill damage", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout/r8", true)
         if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Jump scout/r8"))
         {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump scout hitchance', true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items",'Jump revolver hitchance', true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout hitchance", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump revolver hitchance", true)
         }
     }
     if(UI.GetValue("Script items", "Sections") == 2){
@@ -2406,6 +2597,12 @@ function menu(){
         }
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","hitlogs under crosshair", true)
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Grenade prediction", true)
+        if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Grenade prediction"))
+        {
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Predict color", true)
+        UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Line color", true)
+        }
         UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", true)
         if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Display arrows"))
         {
@@ -2477,28 +2674,31 @@ function menu(){
 
 function Main()
 {
-        UI.AddCheckbox("Peek Helper for AWP/Scout");
+        UI.AddCheckbox("Peek Helper for AWP/Scout")
         UI.AddCheckbox("Disable fakelags on r8")
         UI.AddCheckbox("Adaptive autoscope")
         UI.AddHotkey("pingspike")
         UI.AddHotkey("Dormant Aimbot")
+        UI.AddHotkey("Force kill damage")
         UI.AddHotkey("Weapon Override")
         UI.AddSliderInt("Weapon Mindmg", 0, 130)
         UI.AddCheckbox("Jump scout/r8")
-        UI.AddSliderInt('Jump scout hitchance', 0, 100)
-        UI.AddSliderInt('Jump revolver hitchance', 0, 100)
+        UI.AddSliderInt("Jump scout hitchance", 0, 100)
+        UI.AddSliderInt("Jump revolver hitchance", 0, 100)
 
-        UI.AddCheckbox("legfucker");    
-        UI.AddCheckbox("Low delta");
-        UI.AddHotkey("Low delta on key"); 
-        UI.AddHotkey("Legit AA Key");  
+        UI.AddCheckbox("legfucker")
+        UI.AddCheckbox("Low delta")
+        UI.AddHotkey("Low delta on key")
+        UI.AddHotkey("Legit AA Key")
         UI.AddHotkey("Dodge jitter")
+        UI.AddHotkey("Left")
+        UI.AddHotkey("Right")
         UI.AddCheckbox("jitter fakelag")
         UI.AddSliderInt("Send Limit", 0, 16)
         UI.AddSliderInt("Choke Limit", 0, 16)     
 
-        UI.AddCheckbox("Desync line");
-        UI.AddColorPicker("line color");
+        UI.AddCheckbox("Desync line")
+        UI.AddColorPicker("line color")
         UI.AddCheckbox("Display indicators")
         UI.AddColorPicker("Indicators color")
         UI.AddCheckbox("Display arrows")
@@ -2509,39 +2709,40 @@ function Main()
         UI.AddColorPicker("Watermark color")
         UI.AddCheckbox("hitlogs under crosshair")
         UI.AddCheckbox("Enable clock sync")
-        UI.AddHotkey("Left")
-        UI.AddHotkey("Right")
+        UI.AddCheckbox("Grenade prediction")
+        UI.AddColorPicker("Predict color")
+        UI.AddColorPicker("Line color")
         UI.AddCheckbox ("Enable custom scope");
         UI.AddCheckbox("Viewmodel in scope")
-        UI.AddSliderInt ("Distance from crosshair", 0, 200);
-        UI.AddSliderInt ("Size of lines", 20, 200);
-        UI.AddColorPicker( "Scope color" );
-        UI.AddColorPicker( "Scope color 2" );
-        UI.AddCheckbox("Nade warning")
-        UI.AddDropdown("Warning type", ["Default", "enQ"])
+        UI.AddSliderInt ("Distance from crosshair", 0, 200)
+        UI.AddSliderInt ("Size of lines", 20, 200)
+        UI.AddColorPicker( "Scope color" )
+        UI.AddColorPicker( "Scope color 2" )
 
-        UI.AddSliderInt("Aspect ratio", 0, 500 );
+        UI.AddSliderInt("Aspect ratio", 0, 500 )
         UI.AddCheckbox("Enable anim thirdperson")
         UI.AddHotkey("Animated thirdperson")
         UI.AddSliderInt("Thirdperson distance", 50, 250)
         UI.AddCheckbox("Enable chat logging" );
-        UI.AddCheckbox("Clantag");
-        UI.AddCheckbox("Safe AWP");
-        UI.AddCheckbox("Ragdoll Force");
+        UI.AddCheckbox("Clantag")
+        UI.AddCheckbox("Safe AWP")
+        UI.AddCheckbox("Ragdoll Force")
         UI.AddCheckbox("Training server")
-        UI.AddCheckbox("Fps Boost");
+        UI.AddCheckbox("Fps Boost")
         UI.AddCheckbox("Enable Custom Arms")
         UI.AddDropdown("T arms skin", ["Default", "Nigger", "Brown", "Asian", "Red", "Tatoo", "White"])
         UI.AddDropdown("CT arms skin", ["Default", "Nigger", "Brown", "Asian", "Red", "Tatoo", "White"])
 	
 	//  callbacks
+    Cheat.RegisterCallback( "CreateMove", "grenade_warning_tick" )
+    Cheat.RegisterCallback( "Draw", "draw" )
     Global.RegisterCallback("Draw", "drawind")
     Global.RegisterCallback("CreateMove", "ManualAA")
     Global.RegisterCallback("player_connect_full", "player_connect")
-    Global.RegisterCallback("Draw", "draw")
+    Global.RegisterCallback("Draw", "drawping")
     Global.RegisterCallback("Draw", "drawscope")
     Global.RegisterCallback( "FrameStageNotify", "fsn" )
-    Global.RegisterCallback('Draw', 'safeAWP')
+    Global.RegisterCallback("Draw", "safeAWP")
     Global.RegisterCallback("ragebot_fire", "ragebot_fire");
     Global.RegisterCallback("item_purchase", "item_purchase");
     Global.RegisterCallback("player_hurt", "hitlog");
@@ -2559,8 +2760,7 @@ function Main()
     Global.RegisterCallback("Draw", "pingspike")
     Global.RegisterCallback("CreateMove", "legit_aa");
     Global.RegisterCallback("Draw", "onRender");
-    Global.RegisterCallback('CreateMove', 'airHC')
-    Cheat.RegisterCallback("Draw", "DrawNade");
+    Global.RegisterCallback("CreateMove", "airHC")
     Global.RegisterCallback("Draw", "armsColor");
     Global.RegisterCallback("Draw", "helper");
     Global.RegisterCallback("Unload", "unloadhelper");
