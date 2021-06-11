@@ -22,7 +22,7 @@ const clamp = function(val, min, max) { return Math.min(Math.max(min, val), max)
 var thirdperson_cache = UI.GetValue("Visuals", "WORLD", "View", "Thirdperson")
 var person = 0, turned = 1
 
-//todo list: nothing, just nothing
+//todo list: nothing, just nothing, keep that shit working
 Cheat.Print("\n")
 Cheat.PrintColor([255,0,0,255]," ▄▄▄▄    ██▓     ▒█████   ▒█████  ▓█████▄ ▄▄▄█████▓▓█████  ▄████▄   ██░ ██ " + "\n")
 Cheat.PrintColor([255,0,0,255],"▓█████▄ ▓██▒    ▒██▒  ██▒▒██▒  ██▒▒██▀ ██▌▓  ██▒ ▓▒▓█   ▀ ▒██▀ ▀█  ▓██░ ██▒" + "\n")
@@ -57,6 +57,8 @@ Cheat.PrintColor([255,0,0,255], "- Rework Minimum damage" +"\n")
 Cheat.PrintColor([255,0,0,255], "- New clantag uff yaa $ blood $" +"\n")
 Cheat.PrintColor([255,0,0,255], "- Add force kill damage = force 100 damage on guns" +"\n")
 Cheat.PrintColor([255,0,0,255], "- Add grenade prediction" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Remove tab bug that crashes otc menu" +"\n")
+Cheat.PrintColor([255,0,0,255], "- Fix grenade predict not drawing" +"\n")
 Cheat.Print("\n")
 Cheat.Print("\n")
 Cheat.PrintColor([145,197,56,255], "[UPDATE LOG V1.9.1]" + "\n")
@@ -91,10 +93,6 @@ Cheat.Print("\n")
 Cheat.Print("\n")
 Cheat.Print("\n")
 Cheat.Print("\n")
-Cheat.Print("\n")
-Cheat.Print("\n")
-
-
 
 function can_shoot(Player){
     var index = Entity.GetWeapon(Player);
@@ -2230,10 +2228,11 @@ function draw_warning(xzy) {
     if (UI.GetValue("Script items", "Grenade prediction")) 
     {
     var color = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Predict color");
+    var iconco = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Grenade icon color");
     const draw_ind = function(x, y, alpha, str, oof, xzy) {
         Render.FilledCircle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
         Render.Circle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
-        Render.StringCustom(x + 1, y - 11, oof ? (18 + Globals.Tickcount() / 7 % 5) : 10, str, [255, 255, 255, alpha], 5);
+        Render.StringCustom(x + 1, y - 11, oof ? (18 + Globals.Tickcount() / 7 % 5) : 10, str, [iconco[0], iconco[1], iconco[2], alpha && iconco[3]], 5);
     }
     var x = Render.WorldToScreen(xzy[0])[0]
     var y = Render.WorldToScreen(xzy[0])[1]
@@ -2501,176 +2500,73 @@ function training_server() {
 }
 
 UI.AddDropdown( "Sections", [ "Rage", "Anti-Aim", "Visual", "Misc" ] );
-function menu(){
+menu_setup_control = function () {
+    const MENU = UI.GetValue("Script items", "Sections"),
+        menu_rage = MENU == 0;
+        menu_aa = MENU == 1;
+        menu_vis = MENU == 2;
+        menu_misc = MENU == 3;
+    UI.SetEnabled("Script items", "Peek Helper for AWP/Scout", menu_rage)
+    UI.SetEnabled("Script items", "Disable fakelags on r8", menu_rage)
+    UI.SetEnabled("Script items", "Adaptive autoscope", menu_rage)
+    UI.SetEnabled("Script items", "pingspike", menu_rage)
+    UI.SetEnabled("Script items", "Dormant Aimbot", menu_rage)
+    UI.SetEnabled("Script items", "Force kill damage", menu_rage)
+    UI.SetEnabled("Script items", "Weapon Override", menu_rage)
+    UI.SetEnabled("Script items", "Weapon Mindmg", menu_rage)
+    UI.SetEnabled("Script items", "Jump scout/r8", menu_rage)
+    UI.SetEnabled("Script items", "Jump scout hitchance", menu_rage && ("Script items", "Jump scout/r8"))
+    UI.SetEnabled("Script items", "Jump revolver hitchance", menu_rage && ("Script items", "Jump scout/r8"))
 
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout/r8", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout hitchance", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump revolver hitchance", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Legit AA Key", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","jitter fakelag", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Send Limit", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Choke Limit", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","T arms skin", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","CT arms skin", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable custom scope", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Distance from crosshair", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Size of lines", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color 2", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Peek Helper for AWP/Scout", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Animated thirdperson", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Thirdperson distance", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Training server", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Fps Boost", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable anim thirdperson", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Indicators color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Warning type", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Disable fakelags on r8", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display watermark", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Watermark color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Viewmodel in scope", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","hitlogs under crosshair", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dodge jitter", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dormant Aimbot", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Adaptive autoscope", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Force kill damage", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Grenade prediction", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Predict color", false)
-    UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Line color", false)
-   
-    if(UI.GetValue("Script items", "Sections") == 0){
-      // Rage
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Peek Helper for AWP/Scout", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Disable fakelags on r8", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Adaptive autoscope", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","pingspike", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dormant Aimbot", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Force kill damage", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Override", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Weapon Mindmg", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout/r8", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Jump scout/r8"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump scout hitchance", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Jump revolver hitchance", true)
-        }
-    }
-    if(UI.GetValue("Script items", "Sections") == 2){
-      // Visual
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Desync line", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Desync line"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","line color", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Nade warning", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Nade warning"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Warning type", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display indicators", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Display indicators"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Indicators color", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","hitlogs under crosshair", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable clock sync", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Grenade prediction", true)
-        if(UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Grenade prediction"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Predict color", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script itmes", "Line color", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display arrows", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Display arrows"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Arrows color", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected arrow color"   , true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Selected inverter color", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Display watermark", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Display watermark"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Watermark color", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable custom scope", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Enable custom scope"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Viewmodel in scope", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Distance from crosshair", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Size of lines", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Scope color 2", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","hitlogs under crosshair", true)
-    }
-    if(UI.GetValue("Script items", "Sections") == 1){
-        //Anti-Aim
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","legfucker", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Low delta"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Low delta on key", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Legit AA Key", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Dodge jitter", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","jitter fakelag", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","jitter fakelag"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Send Limit", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Choke Limit", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Left", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Right", true)
+    UI.SetEnabled("Script items", "legfucker", menu_aa)
+    UI.SetEnabled("Script items", "Low delta", menu_aa)
+    UI.SetEnabled("Script items", "Low delta on key", menu_aa && ("Script items", "Low delta"))
+    UI.SetEnabled("Script items", "Legit AA Key", menu_aa)
+    UI.SetEnabled("Script items", "Dodge jitter", menu_aa)
+    UI.SetEnabled("Script items", "Left", menu_aa)
+    UI.SetEnabled("Script items", "Right", menu_aa)
+    UI.SetEnabled("Script items", "jitter fakelag", menu_aa)
+    UI.SetEnabled("Script items", "Send Limit", menu_aa && ("Script items", "jitter fakelag"))
+    UI.SetEnabled("Script items", "Choke Limit", menu_aa && ("Script items", "jitter fakelag"))
 
-    }
-    if(UI.GetValue("Script items", "Sections") == 3){
-      // Misc
- 
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable anim thirdperson", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Aspect ratio", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Enable anim thirdperson"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Animated thirdperson", true)
-        }
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Thirdperson distance", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable chat logging", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Clantag", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Safe AWP", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Ragdoll Force", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Training server", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Fps Boost", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms", true)
-        if (UI.GetValue("Misc", "JAVASCRIPT", "Script items","Enable Custom Arms"))
-        {
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","T arms skin", true)
-        UI.SetEnabled("Misc", "JAVASCRIPT", "Script items","CT arms skin", true)
-        }
-    }
+    UI.SetEnabled("Script items", "Desync line", menu_vis)
+    UI.SetEnabled("Script items", "line color", menu_vis && ("Script items", "Desync line"))
+    UI.SetEnabled("Script items", "Display indicators", menu_vis)
+    UI.SetEnabled("Script items", "Indicators color", menu_vis && ("Script items", "Display indicators"))
+    UI.SetEnabled("Script items", "Display arrows", menu_vis)
+    UI.SetEnabled("Script items", "Arrows color", menu_vis && ("Script items", "Display arrows"))
+    UI.SetEnabled("Script items", "Selected arrow color", menu_vis && ("Script items", "Display arrows"))
+    UI.SetEnabled("Script items", "Selected inverter color", menu_vis && ("Script items", "Display arrows"))
+    UI.SetEnabled("Script items", "Display watermark", menu_vis)
+    UI.SetEnabled("Script items", "Watermark color", menu_vis && ("Script items", "Display watermark"))
+    UI.SetEnabled("Script items", "hitlogs under crosshair", menu_vis)
+    UI.SetEnabled("Script items", "Enable clock sync", menu_vis)
+    UI.SetEnabled("Script items", "Grenade prediction", menu_vis)
+    UI.SetEnabled("Script items", "Predict color", menu_vis && ("Script items", "Grenade prediction"))
+    UI.SetEnabled("Script items", "Line color", menu_vis && ("Script items", "Grenade prediction"))
+    UI.SetEnabled("Script items", "Grenade icon color", menu_vis && ("Script items", "Grenade prediction"))
+    UI.SetEnabled("Script items", "Enable custom scope", menu_vis)
+    UI.SetEnabled("Script items", "Viewmodel in scope", menu_vis && ("Script items", "Enable custom scope"))
+    UI.SetEnabled("Script items", "Distance from crosshair", menu_vis && ("Script items", "Enable custom scope"))
+    UI.SetEnabled("Script items", "Size of lines", menu_vis && ("Script items", "Enable custom scope"))
+    UI.SetEnabled("Script items", "Scope color", menu_vis && ("Script items", "Enable custom scope"))
+    UI.SetEnabled("Script items", "Scope color 2", menu_vis && ("Script items", "Enable custom scope"))
+
+    UI.SetEnabled("Script items", "Aspect ratio", menu_misc)
+    UI.SetEnabled("Script items", "Enable anim thirdperson", menu_misc)
+    UI.SetEnabled("Script items", "Animated thirdperson", menu_misc)
+    UI.SetEnabled("Script items", "Thirdperson distance", menu_misc)
+    UI.SetEnabled("Script items", "Enable chat logging", menu_misc)
+    UI.SetEnabled("Script items", "Clantag", menu_misc)
+    UI.SetEnabled("Script items", "Safe AWP", menu_misc)
+    UI.SetEnabled("Script items", "Ragdoll Force", menu_misc)
+    UI.SetEnabled("Script items", "Training server", menu_misc)
+    UI.SetEnabled("Script items", "Fps Boost", menu_misc)
+    UI.SetEnabled("Script items", "Enable Custom Arms", menu_misc)
+    UI.SetEnabled("Script items", "T arms skin", menu_misc && ("Script items", "Enable Custom Arms"))
+    UI.SetEnabled("Script items", "CT arms skin", menu_misc && ("Script items", "Enable Custom Arms"))
 }
-  Cheat.RegisterCallback("Draw","menu");
+Cheat.RegisterCallback("Draw", "menu_setup_control");
 
 function Main()
 {
@@ -2712,6 +2608,7 @@ function Main()
         UI.AddCheckbox("Grenade prediction")
         UI.AddColorPicker("Predict color")
         UI.AddColorPicker("Line color")
+        UI.AddColorPicker("Grenade icon color")
         UI.AddCheckbox ("Enable custom scope");
         UI.AddCheckbox("Viewmodel in scope")
         UI.AddSliderInt ("Distance from crosshair", 0, 200)
