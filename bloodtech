@@ -40,7 +40,7 @@ Cheat.PrintColor([145,197,56,255], "Welcome, " + username + "! your current vers
 Cheat.PrintColor([255,0,0,255], "Yougame Page: ")
 Cheat.Print("https://yougame.biz/threads/196597/" + "\n")
 Cheat.PrintColor([255,0,0,255], "Discord: ")
-Cheat.Print("https://discord.gg/TpTnbh3hVr" + "\n")
+Cheat.Print("https://discord.gg/5nus" + "\n")
 Cheat.PrintColor([255,0,0,255], "Creator of script: ")
 Cheat.Print("ber$$erker#8168" + "\n")
 Cheat.PrintColor([255,0,0,255], "BIG THANKS TO:" + "\n")
