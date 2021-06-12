@@ -262,49 +262,47 @@ function correctLBYMode()
 
 correctLBYMode();
 
-autostopmodescout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode"); autostopmodeawp = UI.GetValue("Rage", "AWP", "Accuracy", "Auto stop mode"); safepointscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point"); safepointawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer safe point"); bodyaimscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim"); bodyaimawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer body aim");
 
-function helper() {
-	
-	if (UI.GetValue("Script items", "Peek Helper for AWP/Scout", true)) {
+function helper()
+{
+    if (UI.GetValue("Script items", "Peek Helper for AWP/Scout", true)) {
 		if (UI.IsHotkeyActive("Misc", "GENERAL", "Movement", "Auto peek") && UI.IsHotkeyActive("Rage", "GENERAL", "Exploits", "Doubletap")) {
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", false);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", false);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", true);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", true);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", true);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", true);
-                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", true);
-			} else {
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);
-                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
-		}
-		} else {
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);
-                UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", false);
-		}				
-	}						
-
-
-function unloadhelper() {
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
-                UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
-                UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);	
-                UI.ToggleHotkey("Misc", "JAVASCRIPT", "Script items", "Freestanding");
+        if (original_hit)
+        {
+            autostopmodescout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode"); 
+            autostopmodeawp = UI.GetValue("Rage", "AWP", "Accuracy", "Auto stop mode"); 
+            safepointscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point"); 
+            safepointawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer safe point"); 
+            bodyaimscout = UI.GetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim"); 
+            bodyaimawp = UI.GetValue("Rage", "AWP", "Accuracy", "Prefer body aim");
+            freestand = UI.GetValue("Anti-Aim", "Rage Anti-Aim", "Auto direction");
+            original_hit = false
+        }
+        UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", false);
+        UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", false);
+        UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", true);
+        UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", true);
+        UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", true);
+        UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", true);
+        UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", true);
+    }
+    else
+    {
+        if (!original_hit)
+        {
+            UI.SetValue("Rage", "SCOUT", "Accuracy", "Auto stop mode", autostopmodescout);
+            UI.SetValue("Rage", "AWP", "Accuracy", "Auto stop mode", autostopmodeawp);
+            UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer safe point", safepointscout);
+            UI.SetValue("Rage", "AWP", "Accuracy", "Prefer safe point", safepointawp);
+            UI.SetValue("Rage", "SCOUT", "Accuracy", "Prefer body aim", bodyaimscout);
+            UI.SetValue("Rage", "AWP", "Accuracy", "Prefer body aim", bodyaimawp);
+            UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Auto direction", freestand);
+            original_hit = true
+        }
+    }
 }
+}
+original_hit = true
 
 LPx = [(screen_size[0] /2) - 30, (screen_size[1] /2) + 7];
 LPy = [(screen_size[0] /2) - 30, (screen_size[1] /2) - 7];
@@ -1944,32 +1942,6 @@ case 22: { Local.SetClanTag("$       "); break; }
 lasttime = time;
 }
 
-
-var scoutCach = UI.GetValue("Rage", "SCOUT", "Accuracy", "Hitchance")
-var revolverCach = UI.GetValue("Rage", "HEAVY PISTOl", "Accuracy", "Hitchance")
-function airHC() {
-    var scoutAir = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump scout hitchance")
-    var revolverAir = UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump revolver hitchance")
-   
-    var local = Entity.GetLocalPlayer()
-    var localWeapon = Entity.GetWeapon(local)
-    var localWeaponName = Entity.GetName(localWeapon)
-    var inAir = Entity.GetProp(local, "CBasePlayer", "m_hGroundEntity")
-if (UI.GetValue("Misc", "JAVASCRIPT", "Script items", "Jump scout/r8"))
-{
-    if (localWeaponName == "r8 revolver" && inAir =="m_hGroundEntity") {
-        UI.SetValue("Rage", "HEAVY PISTOL", "Accuracy", "Hitchance", revolverAir)
-    } else {
-        UI.SetValue("Rage", "HEAVY PISTOL", "Accuracy", "Hitchance", revolverCach)
-    }
-    if (localWeaponName == "ssg 08" && inAir == "m_hGroundEntity") {
-        UI.SetValue("Rage", "SCOUT", "Accuracy", "Hitchance", scoutAir)
-    } else {
-        UI.SetValue("Rage", "SCOUT", "Accuracy", "Hitchance", scoutCach)
-    }
-  }
-}
-
 function r8fakelag()
 {
     var local = Entity.GetLocalPlayer()
@@ -2514,9 +2486,6 @@ menu_setup_control = function () {
     UI.SetEnabled("Script items", "Force kill damage", menu_rage)
     UI.SetEnabled("Script items", "Weapon Override", menu_rage)
     UI.SetEnabled("Script items", "Weapon Mindmg", menu_rage)
-    UI.SetEnabled("Script items", "Jump scout/r8", menu_rage)
-    UI.SetEnabled("Script items", "Jump scout hitchance", menu_rage && UI.GetValue("Script items", "Jump scout/r8"))
-    UI.SetEnabled("Script items", "Jump revolver hitchance", menu_rage && UI.GetValue("Script items", "Jump scout/r8"))
 
     UI.SetEnabled("Script items", "legfucker", menu_aa)
     UI.SetEnabled("Script items", "Low delta", menu_aa)
@@ -2578,9 +2547,6 @@ function Main()
         UI.AddHotkey("Force kill damage")
         UI.AddHotkey("Weapon Override")
         UI.AddSliderInt("Weapon Mindmg", 0, 130)
-        UI.AddCheckbox("Jump scout/r8")
-        UI.AddSliderInt("Jump scout hitchance", 0, 100)
-        UI.AddSliderInt("Jump revolver hitchance", 0, 100)
 
         UI.AddCheckbox("legfucker")
         UI.AddCheckbox("Low delta")
@@ -2657,10 +2623,8 @@ function Main()
     Global.RegisterCallback("Draw", "pingspike")
     Global.RegisterCallback("CreateMove", "legit_aa");
     Global.RegisterCallback("Draw", "onRender");
-    Global.RegisterCallback("CreateMove", "airHC")
     Global.RegisterCallback("Draw", "armsColor");
     Global.RegisterCallback("Draw", "helper");
-    Global.RegisterCallback("Unload", "unloadhelper");
     Cheat.RegisterCallback("FrameStageNotify", "thirdperson");
     Cheat.RegisterCallback("Unload", "unload");
     Cheat.RegisterCallback("Draw", "training_server");
