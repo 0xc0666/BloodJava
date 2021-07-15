@@ -1868,20 +1868,20 @@ function roundstart()
     tickcount = 0
 }
 
-var original_naa = true
+var original_laa = true
 
 function legit_aa()
 {
     if (UI.IsHotkeyActive("Misc", "JAVASCRIPT", "Script items", "Legit AA Key"))
     {
-        if (original_naa)
+        if (original_laa)
         {
             restrictions_cache = UI.GetValue("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions");
             hiderealangle_cache = UI.GetValue ("Anti-Aim", "Fake angles", "Hide real angle");
             yaw_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset");
             jitter_offset_cache = UI.GetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset");
             pitch_cache = UI.GetValue ("Anti-Aim", "Extra", "Pitch");
-            original_naa = false;
+            original_laa = false;
         }
         UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", 0);
         UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", true);
@@ -1891,55 +1891,16 @@ function legit_aa()
     }
     else
     {
-        if (!original_naa)
+        if (!original_laa)
         {
             UI.SetValue ("Misc", "PERFORMANCE & INFORMATION", "Information", "Restrictions", restrictions_cache);
             UI.SetValue ("Anti-Aim", "Fake angles", "Hide real angle", hiderealangle_cache);
             UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Yaw offset", yaw_offset_cache);
             UI.SetValue ("Anti-Aim", "Rage Anti-Aim", "Jitter offset", jitter_offset_cache);
             UI.SetValue ("Anti-Aim", "Extra", "Pitch", pitch_cache);
-            original_naa = true;
+            original_laa = true;
         }
     }
-}
-
-var lasttime = 0;
-function onRender( )
-{
-var tag = UI.GetValue("Clantag");
-var speed = 4.5;
-var time = parseInt((Globals.Curtime() * speed))
-if (time != lasttime)
-{
-if (tag == 1) {
-switch ((time) % 22) {
-
-case 1:  { Local.SetClanTag("$       "); break; }
-case 2:  { Local.SetClanTag("$ |8    "); break; }
-case 3:  { Local.SetClanTag("$ b     "); break; }
-case 4:  { Local.SetClanTag("$ b|_   "); break; }
-case 5:  { Local.SetClanTag("$ bl    "); break; }
-case 6:  { Local.SetClanTag("$ bl{}  "); break; }
-case 7:  { Local.SetClanTag("$ blo   "); break; }
-case 8:  { Local.SetClanTag("$ blo{} "); break; }
-case 9:  { Local.SetClanTag("$ bloo  "); break; }
-case 10: { Local.SetClanTag("$ blooc|"); break; }
-case 11: { Local.SetClanTag("$ blood "); break; }
-case 12: { Local.SetClanTag("$ blood "); break; }
-case 13: { Local.SetClanTag("$ blooc|"); break; }
-case 14: { Local.SetClanTag("$ bloo  "); break; }
-case 15: { Local.SetClanTag("$ blo{} "); break; }
-case 16: { Local.SetClanTag("$ blo   "); break; }
-case 17: { Local.SetClanTag("$ bl{}  "); break; }
-case 18: { Local.SetClanTag("$ bl    "); break; }
-case 19: { Local.SetClanTag("$ b|_   "); break; }
-case 20: { Local.SetClanTag("$ b     "); break; }
-case 21: { Local.SetClanTag("$ |8    "); break; }
-case 22: { Local.SetClanTag("$       "); break; }
-}
-}
-}
-lasttime = time;
 }
 
 function r8fakelag()
@@ -2203,7 +2164,8 @@ function draw_warning(xzy) {
     var iconco = UI.GetColor("Misc", "JAVASCRIPT", "Script items", "Grenade icon color");
     const draw_ind = function(x, y, alpha, str, oof, xzy) {
         Render.FilledCircle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
-        Render.Circle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3]])
+        if(!oof) Render.Circle(x, y, 18 + Globals.Tickcount() / 7 % 5, [color[0], color[1], color[2], alpha && 50])
+        Render.Circle(x, y, oof ? (18 + Globals.Tickcount() / 7 % 5) : 15, [color[0], color[1], color[2], alpha && color[3] + 25])
         Render.StringCustom(x + 1, y - 11, oof ? (18 + Globals.Tickcount() / 7 % 5) : 10, str, [iconco[0], iconco[1], iconco[2], alpha && iconco[3]], 5);
     }
     var x = Render.WorldToScreen(xzy[0])[0]
@@ -2228,6 +2190,18 @@ function draw_warning(xzy) {
             var cos = Math.cos(atan) * -1
             var sin = Math.sin(atan)
             draw_ind(size[0] / 2 + cos * 150, size[1] / 2 + sin * 150, 255, str, true, xzy[0])
+            for (var i = 0; i < pmolotov.length; i++) {
+                var molotov = pmolotov[i]
+                var xzy = molotov[0]
+                var start_timer = molotov[1]
+                var end_timer = molotov[2]
+                var curr = Globals.Tickcount()
+                var max = end_timer - start_timer
+                var cur = end_timer - curr
+                var proc = cur / max * 300
+                if (proc > 0)
+                    draw_circle_3d(xzy[0], xzy[1], xzy[2], 130, 360, proc, 30, default_color_a, true, [255, 255, 255, 20])
+            }
     } else {
         draw_ind(x, y, 255, str, false, xzy[0])
         }
@@ -2252,6 +2226,68 @@ function draw() {
         var line = hits[i]
         draw_warning(line)
         }
+    }
+}
+
+function angle_to_vec(pitch, yaw) {
+    var p = degreesToRadians(pitch);
+    var y = degreesToRadians(yaw)
+    var sin_p = Math.sin(p);
+    var cos_p = Math.cos(p);
+    var sin_y = Math.sin(y);
+    var cos_y = Math.cos(y);
+    return [cos_p * cos_y, cos_p * sin_y, -sin_p];
+}
+
+function degreesToRadians(degress) {
+    return degress * Math.PI / 180.0;
+}
+
+function radians_to_degrees( radians ) { return radians * ( 180 / Math.PI ); }
+
+// https://www.onetap.com/threads/release-shitty-circular-molotov-esp.13186/
+function get_circle( x, y, z, radius, accuracy ) {
+    first = true;
+    old_screen_pos = Render.WorldToScreen( [ x, y, z ] );
+    for ( t = 0.000; t <= Math.PI * 2.1; t += accuracy ) {
+        if ( first ) {
+            world_pos = [ ( radius * Math.cos( -t ) + x ), ( radius * Math.sin(-t) + y), z];
+            old_screen_pos = Render.WorldToScreen( world_pos );
+            first = false;
+        }
+        world_pos = [(radius * Math.cos(t) + x), (radius * Math.sin(t) + y), z];
+        screen_pos = Render.WorldToScreen( world_pos );
+        old_screen_pos = screen_pos;
+    }
+}
+
+function draw_circle_3d(x, y, z, radius, degrees, degrees_outline, start_at, clr, filled, fill_clr) {
+    var accuracy = 5;
+    var old_x, old_y;
+    start_at = start_at + 1
+    for (rot = start_at; rot < degrees + start_at + 1; rot += accuracy) {
+        rot_r = rot * (Math.PI / 180)
+        line_x = radius * Math.cos(rot_r) + x, line_y = radius * Math.sin(rot_r) + y
+        var curr = Render.WorldToScreen([line_x, line_y, z]),
+            cur = Render.WorldToScreen([x, y, z]);
+        if (cur[0] != null && curr[0] != null && old_x != null) {
+            if (filled) Render.Polygon([
+                [curr[0], curr[1]],
+                [old_x, old_y],
+                [cur[0], cur[1]]
+            ], fill_clr)
+        }
+        old_x = curr[0], old_y = curr[1];
+    }
+    for (rot = start_at; rot < degrees_outline + start_at + 1; rot += accuracy) {
+        rot_r = rot * (Math.PI / 180)
+        line_x = radius * Math.cos(rot_r) + x, line_y = radius * Math.sin(rot_r) + y
+        var curr = Render.WorldToScreen([line_x, line_y, z]),
+            cur = Render.WorldToScreen([x, y, z]);
+        if (cur[0] != null && curr[0] != null && old_x != null) {
+            Render.Line(curr[0], curr[1], old_x, old_y, clr)
+        }
+        old_x = curr[0], old_y = curr[1];
     }
 }
 
@@ -2523,7 +2559,7 @@ menu_setup_control = function () {
 
     UI.SetEnabled("Script items", "Aspect ratio", menu_misc)
     UI.SetEnabled("Script items", "Enable anim thirdperson", menu_misc)
-    UI.SetEnabled("Script items", "Animated thirdperson", menu_misc)
+    UI.SetEnabled("Script items", "Animated thirdperson", menu_misc && UI.GetValue("Enable anim thirdperson"))
     UI.SetEnabled("Script items", "Thirdperson distance", menu_misc)
     UI.SetEnabled("Script items", "Enable chat logging", menu_misc)
     UI.SetEnabled("Script items", "Clantag", menu_misc)
@@ -2597,45 +2633,6 @@ function Main()
         UI.AddDropdown("CT arms skin", ["Default", "Nigger", "Brown", "Asian", "Red", "Tatoo", "White"])
 	
 	//  callbacks
-    Cheat.RegisterCallback( "CreateMove", "grenade_warning_tick" )
-    Cheat.RegisterCallback( "Draw", "draw" )
-    Global.RegisterCallback("Draw", "drawind")
-    Global.RegisterCallback("CreateMove", "ManualAA")
-    Global.RegisterCallback("player_connect_full", "player_connect")
-    Global.RegisterCallback("Draw", "drawping")
-    Global.RegisterCallback("Draw", "drawscope")
-    Global.RegisterCallback( "FrameStageNotify", "fsn" )
-    Global.RegisterCallback("Draw", "safeAWP")
-    Global.RegisterCallback("ragebot_fire", "ragebot_fire");
-    Global.RegisterCallback("item_purchase", "item_purchase");
-    Global.RegisterCallback("player_hurt", "hitlog");
-    Global.RegisterCallback("Draw", "removelogs");
-    Global.RegisterCallback("FrameStageNotify", "ragdollForce");
-    Global.RegisterCallback("Draw", "onDraw");
-    Global.RegisterCallback("CreateMove", "onCM")
-    Global.RegisterCallback("CreateMove", "Low_delta");
-    Global.RegisterCallback("Draw", "indication")
-    Global.RegisterCallback("Draw", "delta");
-    Global.RegisterCallback("CreateMove", "anim");
-    Global.RegisterCallback("CreateMove", "fakelags");
-    Global.RegisterCallback("CreateMove", "dodgejitter");
-    Global.RegisterCallback("round_start", "roundstart")
-    Global.RegisterCallback("Draw", "pingspike")
-    Global.RegisterCallback("CreateMove", "legit_aa");
-    Global.RegisterCallback("Draw", "onRender");
-    Global.RegisterCallback("Draw", "armsColor");
-    Global.RegisterCallback("Draw", "helper");
-    Cheat.RegisterCallback("FrameStageNotify", "thirdperson");
-    Cheat.RegisterCallback("Unload", "unload");
-    Cheat.RegisterCallback("Draw", "training_server");
-    Cheat.RegisterCallback( "Draw", "fps_boost" );
-    Cheat.RegisterCallback("Draw", "r8fakelag")
-    Cheat.RegisterCallback("Draw", "draw9");
-    Cheat.RegisterCallback("player_hurt", "pHurt")
-    Cheat.RegisterCallback("Draw", "drawLogs")
-    Cheat.RegisterCallback("Draw", "showOrHide")
-    Cheat.RegisterCallback("CreateMove", "autoscope")
-    Global.RegisterCallback("CreateMove", "dormantAim");
-    Global.RegisterCallback("weapon_fire", "shoot");
+Cheat.RegisterCallback( "CreateMove", "grenade_warning_tick" ),Cheat.RegisterCallback( "Draw", "draw" ),Global.RegisterCallback("Draw", "drawind"),Global.RegisterCallback("CreateMove", "ManualAA"),Global.RegisterCallback("player_connect_full", "player_connect"),Global.RegisterCallback("Draw", "drawping"),Global.RegisterCallback("Draw", "drawscope"),Global.RegisterCallback( "FrameStageNotify", "fsn" ),Global.RegisterCallback("Draw", "safeAWP"),Global.RegisterCallback("ragebot_fire", "ragebot_fire"),Global.RegisterCallback("item_purchase", "item_purchase"),Global.RegisterCallback("player_hurt", "hitlog"),Global.RegisterCallback("Draw", "removelogs"),Global.RegisterCallback("FrameStageNotify", "ragdollForce"),Global.RegisterCallback("Draw", "onDraw"),Global.RegisterCallback("CreateMove", "onCM"),Global.RegisterCallback("CreateMove", "Low_delta"),Global.RegisterCallback("Draw", "indication"),Global.RegisterCallback("Draw", "delta"),Global.RegisterCallback("CreateMove", "anim"),Global.RegisterCallback("CreateMove", "fakelags"),Global.RegisterCallback("CreateMove", "dodgejitter"), Global.RegisterCallback("round_start", "roundstart"), Global.RegisterCallback("Draw", "pingspike"), Global.RegisterCallback("CreateMove", "legit_aa"), Global.RegisterCallback("Draw", "armsColor"), Global.RegisterCallback("Draw", "helper"), Cheat.RegisterCallback("FrameStageNotify", "thirdperson"), Cheat.RegisterCallback("Unload", "unload"), Cheat.RegisterCallback("Draw", "training_server"), Cheat.RegisterCallback( "Draw", "fps_boost" ), Cheat.RegisterCallback("Draw", "r8fakelag"), Cheat.RegisterCallback("Draw", "draw9"), Cheat.RegisterCallback("player_hurt", "pHurt"), Cheat.RegisterCallback("Draw", "drawLogs"), Cheat.RegisterCallback("Draw", "showOrHide"), Cheat.RegisterCallback("CreateMove", "autoscope"), Global.RegisterCallback("CreateMove", "dormantAim"), Global.RegisterCallback("weapon_fire", "shoot")
 }
 Main();
